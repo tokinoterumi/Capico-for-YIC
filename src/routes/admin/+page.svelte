@@ -393,6 +393,8 @@
 
 <svelte:head>
 	<title>管理パネル - YIC</title>
+	<link rel="manifest" href="/admin-manifest.json" />
+	<meta name="theme-color" content="#dc2626" />
 </svelte:head>
 
 <!-- MODALS -->
