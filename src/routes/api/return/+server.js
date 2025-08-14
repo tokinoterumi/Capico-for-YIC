@@ -44,19 +44,7 @@ export async function POST({ request }) {
 			);
 		}
 
-		if (!returnData.returnStaff) {
-			return json(
-				{
-					error: 'Missing staff information',
-					message: 'returnStaff is required for return processing'
-				},
-				{ status: 400 }
-			);
-		}
-
-		// Note: goodCondition is a boolean, no validation needed for specific values
-
-		// First, get the current rental to validate return is allowed
+		// First, get the current rental to validate return is allowed and determine service type
 		const sheets = await getGoogleSheetsClient();
 		
 		const dataRange = 'Rentals';
@@ -101,6 +89,18 @@ export async function POST({ request }) {
 					currentStatus: currentRental.status
 				},
 				{ status: 409 }
+			);
+		}
+
+		// Validate returnStaff requirement based on service type
+		// Luggage service doesn't require staff (can be self-service pickup)
+		if (currentRental.serviceType !== 'Luggage' && !returnData.returnStaff) {
+			return json(
+				{
+					error: 'Missing staff information',
+					message: `returnStaff is required for ${currentRental.serviceType} service returns`
+				},
+				{ status: 400 }
 			);
 		}
 
@@ -194,7 +194,7 @@ export async function POST({ request }) {
 		// Prepare data for Google Sheets update
 		const updates = {
 			status: finalStatus,
-			returnStaff: returnData.returnStaff,
+			returnStaff: returnData.returnStaff || (currentRental.serviceType === 'Luggage' ? 'Self-Service' : ''),
 			returnedAt: new Date().toISOString(),
 			goodCondition: returnData.goodCondition ? 'TRUE' : 'FALSE',
 			returnNotes: returnData.returnNotes || '',
@@ -245,8 +245,9 @@ export async function POST({ request }) {
 
 		// Log the return for audit purposes
 		const serviceLabel = serviceType === 'Luggage' ? 'pickup' : 'return';
+		const staffInfo = returnData.returnStaff || (serviceType === 'Luggage' ? 'Self-Service' : 'Unknown');
 		console.log(
-			`${serviceType} ${serviceLabel} processed: ${returnData.rentalID} by ${returnData.returnStaff} - Condition: ${returnData.goodCondition ? 'Good' : 'Issues reported'} - Late fee: ¥${lateFee}`
+			`${serviceType} ${serviceLabel} processed: ${returnData.rentalID} by ${staffInfo} - Condition: ${returnData.goodCondition ? 'Good' : 'Issues reported'} - Late fee: ¥${lateFee}`
 		);
 
 		// Prepare service-specific response messages
@@ -271,7 +272,7 @@ export async function POST({ request }) {
 				serviceType,
 				previousStatus: 'Active',
 				newStatus: finalStatus,
-				returnStaff: returnData.returnStaff,
+				returnStaff: returnData.returnStaff || (serviceType === 'Luggage' ? 'Self-Service' : ''),
 				returnedAt: updates.returnedAt,
 				goodCondition: returnData.goodCondition,
 				returnNotes: returnData.returnNotes,
@@ -346,9 +347,11 @@ export async function GET() {
 				method: 'POST',
 				description: 'Process returns/pickups from Active rental status',
 				requiredFields: [
-					'rentalID (active rental to return)',
-					'returnStaff (staff processing return)'
+					'rentalID (active rental to return)'
 				],
+				conditionallyRequiredFields: {
+					'returnStaff': 'Required for Bike and Onsen services, optional for Luggage (self-service allowed)'
+				},
 				conditionalFields: {
 					Bike: ['bikeNumbers (array of bikes being returned)'],
 					Onsen: ['onsenKeyNumbers (array of keys being returned)'],

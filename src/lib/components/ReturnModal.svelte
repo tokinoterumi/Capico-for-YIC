@@ -99,7 +99,7 @@
 				handleClose();
 			} else {
 				const error = await response.json();
-				alert(`エラー<br />Error: ${error.error || error.message || 'Unknown error'}`);
+				alert(`エラー: ${error.error || error.message || 'Unknown error'}`);
 			}
 		} catch (err) {
 			console.error('Return processing error:', err);
