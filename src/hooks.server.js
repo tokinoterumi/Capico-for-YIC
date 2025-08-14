@@ -24,7 +24,7 @@ export const { handle: authHandle } = SvelteKitAuth({
 		})
 	],
 	secret: AUTH_SECRET,
-	trustHost: env.AUTH_TRUST_HOST === 'true',
+	trustHost: env.AUTH_TRUST_HOST === 'true' || process.env.NODE_ENV === 'production',
 	callbacks: {
 		async signIn({ user, account }) {
 			if (account?.provider === 'google') {
