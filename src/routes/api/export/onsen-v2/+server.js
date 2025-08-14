@@ -34,7 +34,6 @@ const COLUMN_MAPPING = {
 	customerName: 'お客様名',
 	customerContact: '連絡先',
 	totalPrice: '料金',
-	discountApplied: '割引適用',
 	unavailableBaths: '利用不可浴場',
 	companion: '同行者',
 	comeFrom: 'お住まい',
@@ -56,7 +55,6 @@ const EXPORT_FIELDS = [
 	'customerName',
 	'customerContact',
 	'totalPrice',
-	'discountApplied',
 	'unavailableBaths',
 	'companion',
 	'comeFrom',
@@ -161,9 +159,7 @@ export async function GET({ url }) {
 				let value = rental[field] || '';
 				
 				// Format specific fields
-				if (field === 'discountApplied') {
-					value = value === 'TRUE' || value === true ? 'はい' : 'いいえ';
-				} else if (field === 'totalPrice') {
+				if (field === 'totalPrice') {
 					value = value ? `¥${Number(value).toLocaleString()}` : '¥0';
 				} else if (field === 'checkedInAt') {
 					if (value) {

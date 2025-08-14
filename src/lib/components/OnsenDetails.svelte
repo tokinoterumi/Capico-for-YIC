@@ -87,18 +87,16 @@
 
 	const ADULT_PRICE = 1800;
 	const CHILD_PRICE = 1000;
-	const ADULT_DISCOUNT_PRICE = 1600;
-	const CHILD_DISCOUNT_PRICE = 900;
 	const FACE_TOWEL_PRICE = 220;
 	const BATH_TOWEL_PRICE = 700;
 
-	// --- Discount Calculation Logic ---
+	// --- Bath Availability Check Logic ---
 
 	/**
-	 * Checks the cleaning schedule for all public baths and returns discount information.
-	 * @returns {{isDiscounted: boolean, unavailableBaths: string[]}}
+	 * Checks the cleaning schedule for all public baths and returns availability information.
+	 * @returns {{hasUnavailableBaths: boolean, unavailableBaths: string[]}}
 	 */
-	function getDiscountInfo() {
+	function getBathAvailabilityInfo() {
 		const now = new Date();
 		const today = now.getDate();
 		const month = now.getMonth() + 1; // 1-12
@@ -138,20 +136,20 @@
 		}
 
 		return {
-			isDiscounted: unavailable.length > 0,
+			hasUnavailableBaths: unavailable.length > 0,
 			unavailableBaths: unavailable
 		};
 	}
 
 	// --- Reactive Svelte Statements ---
-	$: discountInfo = getDiscountInfo();
-	$: discountActive = discountInfo.isDiscounted;
-	$: unavailableBathsList = discountInfo.unavailableBaths.join('、');
+	$: bathAvailabilityInfo = getBathAvailabilityInfo();
+	$: hasUnavailableBaths = bathAvailabilityInfo.hasUnavailableBaths;
+	$: unavailableBathsList = bathAvailabilityInfo.unavailableBaths.join('、');
 
 	$: totalAdultCount = adultMaleCount + adultFemaleCount;
 	$: totalChildCount = childMaleCount + childFemaleCount;
-	$: adultUnitPrice = discountActive ? ADULT_DISCOUNT_PRICE : ADULT_PRICE;
-	$: childUnitPrice = discountActive ? CHILD_DISCOUNT_PRICE : CHILD_PRICE;
+	$: adultUnitPrice = ADULT_PRICE; // Always use regular price
+	$: childUnitPrice = CHILD_PRICE; // Always use regular price
 	$: adultSubtotal = adultUnitPrice * totalAdultCount;
 	$: childSubtotal = childUnitPrice * totalChildCount;
 	$: faceTowelSubtotal = FACE_TOWEL_PRICE * faceTowelCount;
@@ -183,8 +181,7 @@
 					bathTowelCount,
 					totalPrice,
 					rentalPlan: 'onsen_pass',
-					discountApplied: discountActive,
-					unavailableBaths: discountInfo.unavailableBaths
+					unavailableBaths: bathAvailabilityInfo.unavailableBaths
 				}
 			});
 		}
@@ -198,26 +195,26 @@
 		</h2>
 	</div>
 
-	<!-- REFINED: Discount Notice -->
-	{#if discountActive}
-		<div class="rounded-lg p-4">
+	<!-- Warning Notice for Unavailable Baths -->
+	{#if hasUnavailableBaths}
+		<div class="rounded-lg p-4 bg-yellow-50 border border-yellow-200">
 			<div class="flex items-start">
-				<div class="text-green-800 mr-3 mt-0.5">
+				<div class="text-yellow-800 mr-3 mt-0.5">
 					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 						<path
 							fill-rule="evenodd"
-							d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+							d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
 							clip-rule="evenodd"
 						/>
 					</svg>
 				</div>
 				<div class="text-sm">
-					<h4 class="font-semibold text-green-900 mb-1">
-						割引適用中！<br />{unavailableBathsList}
-						が清掃中のため、特別価格でご提供します。
+					<h4 class="font-semibold text-yellow-900 mb-1">
+						⚠️ 一部浴場利用不可<br />Some Baths Unavailable
 					</h4>
-					<p class="text-green-900">
-						Special pricing is active because {unavailableBathsList}is/are under maintenance.
+					<p class="text-yellow-800">
+						{unavailableBathsList} が清掃中のため、現在ご利用いただけません。<br />
+						{unavailableBathsList} is/are currently unavailable due to maintenance.
 					</p>
 				</div>
 			</div>
@@ -309,11 +306,6 @@
 						<div class="ml-4 text-right">
 							<div class="font-semibold text-gray-900">
 								¥{adultUnitPrice.toLocaleString()}
-								{#if discountActive}
-									<span class="text-sm text-green-600 line-through ml-1"
-										>¥{ADULT_PRICE.toLocaleString()}</span
-									>
-								{/if}
 							</div>
 						</div>
 					</div>
@@ -331,11 +323,6 @@
 						<div class="ml-4 text-right">
 							<div class="font-semibold text-gray-900">
 								¥{adultUnitPrice.toLocaleString()}
-								{#if discountActive}
-									<span class="text-sm text-green-600 line-through ml-1"
-										>¥{ADULT_PRICE.toLocaleString()}</span
-									>
-								{/if}
 							</div>
 						</div>
 					</div>
@@ -360,11 +347,6 @@
 						<div class="ml-4 text-right">
 							<div class="font-semibold text-gray-900">
 								¥{childUnitPrice.toLocaleString()}
-								{#if discountActive}
-									<span class="text-sm text-green-600 line-through ml-1"
-										>¥{CHILD_PRICE.toLocaleString()}</span
-									>
-								{/if}
 							</div>
 						</div>
 					</div>
@@ -382,11 +364,6 @@
 						<div class="ml-4 text-right">
 							<div class="font-semibold text-gray-900">
 								¥{childUnitPrice.toLocaleString()}
-								{#if discountActive}
-									<span class="text-sm text-green-600 line-through ml-1"
-										>¥{CHILD_PRICE.toLocaleString()}</span
-									>
-								{/if}
 							</div>
 						</div>
 					</div>

@@ -130,11 +130,6 @@ function validateRentalData(data, registrationType) {
 		}
 	}
 
-	// Counter registration validation
-	if (registrationType === REGISTRATION_TYPES.COUNTER) {
-		if (!data.staffName) errors.push('Staff name is required for counter registrations');
-	}
-
 	return { isValid: errors.length === 0, errors };
 }
 
@@ -155,7 +150,7 @@ function prepareRowData(data, rentalId, registrationType) {
 	if (registrationType === REGISTRATION_TYPES.HOTEL) {
 		customerName = data.hotelName; // Just use hotel name directly
 		customerContact = ''; // Leave blank for hotel registrations
-		documentType = ''; // Leave blank for hotel registrations  
+		documentType = ''; // Leave blank for hotel registrations
 		status = 'Awaiting_Storage'; // Hotel luggage goes directly to fulfillment queue
 		checkInStaff = ''; // No staff tracking for luggage
 		checkedInAt = new Date().toISOString();
@@ -178,55 +173,114 @@ function prepareRowData(data, rentalId, registrationType) {
 
 	const currentTime = new Date().toISOString();
 
-	return [
-		rentalId, // A: rentalID
-		status, // B: status
-		currentTime, // C: submittedAt
-		currentTime, // D: lastUpdated
-		customerName, // E: customerName
-		customerContact, // F: customerContact
-		documentType, // G: documentType
-		data.comeFrom || '', // H: comeFrom
-		data.serviceType || '', // I: serviceType
-		data.rentalPlan || '', // J: rentalPlan
-		data.totalPrice || 0, // K: totalPrice
-		data.expectedReturn || '', // L: expectedReturn
-		agreement, // M: agreement
-		checkInStaff, // N: checkInStaff
-		checkedInAt, // O: checkedInAt
-		'', // P: photoFileID
-		verified, // Q: verified
-		'', // R: storageStaff
-		'', // S: storedAt
-		'', // T: returnedAt
-		'', // U: returnStaff
-		null, // V: goodCondition
-		'', // W: returnNotes
-		false, // X: isLate
-		0, // Y: minutesLate
-		registrationType === REGISTRATION_TYPES.HOTEL ? '' : (data.notes || ''), // Z: troubleNotes - no notes for hotel registrations
-		false, // AA: troubleResolved
-		false, // AB: damageReported
-		false, // AC: repairRequired
-		false, // AD: replacementRequired
-		data.bikeCount || 0, // AE: bikeCount
-		'', // AF: bikeNumber
-		'', // AG: onsenKeyNumber
-		data.luggageCount || 0, // AH: luggageCount
-		luggageTagNumber, // AI: luggageTagNumber
-		data.adultMaleCount || 0, // AJ: maleCount
-		data.adultFemaleCount || 0, // AK: femaleCount  
-		data.totalAdultCount || 0, // AL: totalAdultCount
-		data.childMaleCount || 0, // AM: boyCount
-		data.childFemaleCount || 0, // AN: girlCount
-		data.totalChildCount || 0, // AO: totalChildCount
-		0, // AP: kidsCount (not currently used)
-		data.faceTowelCount || 0, // AQ: faceTowelCount
-		data.bathTowelCount || 0, // AR: bathTowelCount  
-		data.discountApplied || false, // AS: discountApplied
-		partnerHotel, // AT: partnerHotel
-		data.createdBy || checkInStaff // AU: createdBy
-	];
+	// Create service-specific row data
+	if (data.serviceType === 'Luggage') {
+		// Luggage-only row - minimal essential fields
+		const luggageRow = new Array(45); // A-AS = 45 columns
+
+		// Essential luggage fields only
+		luggageRow[0] = rentalId; // A: rentalID
+		luggageRow[1] = status; // B: status
+		luggageRow[2] = currentTime; // C: submittedAt
+		luggageRow[3] = currentTime; // D: lastUpdated
+		luggageRow[4] = customerName; // E: customerName
+		luggageRow[5] = customerContact; // F: customerContact
+		luggageRow[8] = data.serviceType; // I: serviceType
+		luggageRow[10] = data.totalPrice || 0; // K: totalPrice
+		luggageRow[11] = data.expectedReturn || ''; // L: expectedReturn
+		luggageRow[14] = checkedInAt; // O: checkedInAt
+		luggageRow[24] = data.notes || ''; // Y: troubleNotes
+		luggageRow[32] = data.luggageCount || 0; // AG: luggageCount
+		luggageRow[33] = luggageTagNumber; // AH: luggageTagNumber
+		luggageRow[43] = partnerHotel; // AR: partnerHotel
+
+		// Fill remaining undefined slots with empty strings
+		return luggageRow.map((val) => (val === undefined ? '' : val));
+	} else if (data.serviceType === 'Onsen') {
+		// Onsen-specific row - relevant fields only
+		const onsenRow = new Array(45); // A-AS = 45 columns
+
+		// Essential Onsen fields
+		onsenRow[0] = rentalId; // A: rentalID
+		onsenRow[1] = status; // B: status
+		onsenRow[2] = currentTime; // C: submittedAt
+		onsenRow[3] = currentTime; // D: lastUpdated
+		onsenRow[4] = customerName; // E: customerName
+		onsenRow[5] = customerContact; // F: customerContact
+		onsenRow[6] = documentType; // G: documentType
+		onsenRow[7] = data.comeFrom || ''; // H: comeFrom
+		onsenRow[8] = data.serviceType; // I: serviceType
+		onsenRow[10] = data.totalPrice || 0; // K: totalPrice
+		onsenRow[12] = agreement; // M: agreement
+		onsenRow[13] = checkInStaff; // N: checkInStaff
+		onsenRow[14] = checkedInAt; // O: checkedInAt
+		onsenRow[15] = ''; // P: photoFileID
+		onsenRow[16] = verified; // Q: verified
+		onsenRow[17] = ''; // R: storedAt
+		onsenRow[18] = ''; // S: returnedAt
+		onsenRow[19] = ''; // T: returnStaff
+		onsenRow[20] = null; // U: goodCondition
+		onsenRow[21] = ''; // V: returnNotes
+		onsenRow[22] = false; // W: isLate
+		onsenRow[23] = 0; // X: minutesLate
+		onsenRow[24] = data.notes || ''; // Y: troubleNotes
+		onsenRow[25] = false; // Z: troubleResolved
+		onsenRow[26] = false; // AA: damageReported
+		onsenRow[27] = false; // AB: repairRequired
+		onsenRow[28] = false; // AC: replacementRequired
+		onsenRow[31] = ''; // AF: onsenKeyNumber
+		onsenRow[34] = data.adultMaleCount || 0; // AI: maleCount
+		onsenRow[35] = data.adultFemaleCount || 0; // AJ: femaleCount
+		onsenRow[36] = data.totalAdultCount || 0; // AK: totalAdultCount
+		onsenRow[37] = data.childMaleCount || 0; // AL: boyCount
+		onsenRow[38] = data.childFemaleCount || 0; // AM: girlCount
+		onsenRow[39] = data.totalChildCount || 0; // AN: totalChildCount
+		onsenRow[40] = 0; // AO: kidsCount
+		onsenRow[41] = data.faceTowelCount || 0; // AP: faceTowelCount
+		onsenRow[42] = data.bathTowelCount || 0; // AQ: bathTowelCount
+
+		// Fill remaining undefined slots with empty strings
+		return onsenRow.map((val) => (val === undefined ? '' : val));
+	} else {
+		// Bike services - full data with bike-specific fields
+		const bikeRow = new Array(45); // A-AS = 45 columns
+
+		// Essential Bike fields
+		bikeRow[0] = rentalId; // A: rentalID
+		bikeRow[1] = status; // B: status
+		bikeRow[2] = currentTime; // C: submittedAt
+		bikeRow[3] = currentTime; // D: lastUpdated
+		bikeRow[4] = customerName; // E: customerName
+		bikeRow[5] = customerContact; // F: customerContact
+		bikeRow[6] = documentType; // G: documentType
+		bikeRow[8] = data.serviceType; // I: serviceType
+		bikeRow[9] = data.rentalPlan || ''; // J: rentalPlan
+		bikeRow[10] = data.totalPrice || 0; // K: totalPrice
+		bikeRow[11] = data.expectedReturn || ''; // L: expectedReturn
+		bikeRow[12] = agreement; // M: agreement
+		bikeRow[13] = checkInStaff; // N: checkInStaff
+		bikeRow[14] = checkedInAt; // O: checkedInAt
+		bikeRow[15] = ''; // P: photoFileID
+		bikeRow[16] = verified; // Q: verified
+		bikeRow[17] = ''; // R: storedAt
+		bikeRow[18] = ''; // S: returnedAt
+		bikeRow[19] = ''; // T: returnStaff
+		bikeRow[20] = null; // U: goodCondition
+		bikeRow[21] = ''; // V: returnNotes
+		bikeRow[22] = false; // W: isLate
+		bikeRow[23] = 0; // X: minutesLate
+		bikeRow[24] = data.notes || ''; // Y: troubleNotes
+		bikeRow[25] = false; // Z: troubleResolved
+		bikeRow[26] = false; // AA: damageReported
+		bikeRow[27] = false; // AB: repairRequired
+		bikeRow[28] = false; // AC: replacementRequired
+		bikeRow[29] = data.bikeCount || 0; // AD: bikeCount
+		bikeRow[30] = ''; // AE: bikeNumber
+		bikeRow[44] = data.createdBy || checkInStaff; // AS: createdBy
+
+		// Fill remaining undefined slots with empty strings
+		return bikeRow.map((val) => (val === undefined ? '' : val));
+	}
 }
 
 /** @type {import('./$types').RequestHandler} */
@@ -310,8 +364,8 @@ export async function POST({ request, url }) {
 		if (data.hotelName) {
 			registrationType = REGISTRATION_TYPES.HOTEL;
 		} else if (
-			data.staffName &&
-			(data.createdBy === 'staff' || url.searchParams.get('type') === 'counter')
+			url.searchParams.get('type') === 'counter' ||
+			data.submissionType === 'STAFF_COUNTER'
 		) {
 			registrationType = REGISTRATION_TYPES.COUNTER;
 		}
@@ -319,6 +373,9 @@ export async function POST({ request, url }) {
 		// Validate the rental data
 		const validation = validateRentalData(data, registrationType);
 		if (!validation.isValid) {
+			console.log('Validation failed for:', data);
+			console.log('Registration type:', registrationType);
+			console.log('Validation errors:', validation.errors);
 			return json(
 				{
 					success: false,
@@ -520,7 +577,7 @@ export async function PUT({ request }) {
 			}
 		}
 
-		// Column mapping for updates
+		// Column mapping for updates (A-AS, 45 columns)
 		const columnMap = {
 			// Basic info
 			rentalID: 'A',
@@ -543,49 +600,45 @@ export async function PUT({ request }) {
 			photoFileID: 'P',
 			verified: 'Q',
 
-			// Storage related
-			storageStaff: 'R',
-			storedAt: 'S',
-
-			// Return related
-			returnedAt: 'T',
-			returnStaff: 'U',
-			goodCondition: 'V',
-			returnNotes: 'W',
-			isLate: 'X',
-			minutesLate: 'Y',
+			// Storage/Return related
+			storedAt: 'R',
+			returnedAt: 'S',
+			returnStaff: 'T',
+			goodCondition: 'U',
+			returnNotes: 'V',
+			isLate: 'W',
+			minutesLate: 'X',
 
 			// Trouble related
-			troubleNotes: 'Z',
-			troubleResolved: 'AA',
+			troubleNotes: 'Y',
+			troubleResolved: 'Z',
 
 			// Damage/repair related
-			damageReported: 'AB',
-			repairRequired: 'AC',
-			replacementRequired: 'AD',
+			damageReported: 'AA',
+			repairRequired: 'AB',
+			replacementRequired: 'AC',
 
 			// Service-specific details
-			bikeCount: 'AE',
-			bikeNumber: 'AF',
-			onsenKeyNumber: 'AG',
-			luggageCount: 'AH',
-			luggageTagNumber: 'AI',
+			bikeCount: 'AD',
+			bikeNumber: 'AE',
+			onsenKeyNumber: 'AF',
+			luggageCount: 'AG',
+			luggageTagNumber: 'AH',
 
 			// Gender/age breakdown
-			maleCount: 'AJ',
-			femaleCount: 'AK',
-			totalAdultCount: 'AL',
-			boyCount: 'AM',
-			girlCount: 'AN',
-			totalChildCount: 'AO',
-			kidsCount: 'AP',
+			maleCount: 'AI',
+			femaleCount: 'AJ',
+			totalAdultCount: 'AK',
+			boyCount: 'AL',
+			girlCount: 'AM',
+			totalChildCount: 'AN',
+			kidsCount: 'AO',
 
 			// Additional details
-			faceTowelCount: 'AQ',
-			bathTowelCount: 'AR',
-			discountApplied: 'AS',
-			partnerHotel: 'AT',
-			createdBy: 'AU'
+			faceTowelCount: 'AP',
+			bathTowelCount: 'AQ',
+			partnerHotel: 'AR',
+			createdBy: 'AS'
 		};
 
 		// Apply updates
@@ -651,7 +704,7 @@ export async function DELETE({ url }) {
 		});
 
 		const rentalsSheet = spreadsheetResponse.data.sheets?.find(
-			sheet => sheet.properties?.title === 'Rentals'
+			(sheet) => sheet.properties?.title === 'Rentals'
 		);
 
 		if (!rentalsSheet || !rentalsSheet.properties) {

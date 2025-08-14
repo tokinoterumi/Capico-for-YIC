@@ -202,11 +202,7 @@
 						</div>
 
 						<div class="text-sm text-gray-800">
-							税込 (Tax inc.){#if rentalData.discountApplied === true || rentalData.discountApplied === 'TRUE'}
-								<div class="text-green-700 text-sm font-medium my-1">
-									割引適用　Discount Applied
-								</div>
-							{/if}
+							税込 (Tax inc.)
 						</div>
 					</div>
 				</div>

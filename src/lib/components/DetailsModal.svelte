@@ -275,11 +275,6 @@
 											<span class="font-medium font-mono">{rental.onsenKeyNumber}</span>
 										</div>
 									{/if}
-									{#if rental.discountApplied === true || rental.discountApplied === 'TRUE'}
-										<div class="text-green-600 text-sm font-medium">
-											割引適用済み<br />Discount Applied
-										</div>
-									{/if}
 								</div>
 							{:else if rental.serviceType === 'Luggage'}
 								<div class="space-y-3">

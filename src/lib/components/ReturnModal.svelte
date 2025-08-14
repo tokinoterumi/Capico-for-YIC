@@ -94,7 +94,7 @@
 
 			if (response.ok) {
 				const result = await response.json();
-				alert(`返却処理完了<br />Return completed: ${result.message}`);
+				alert(`返却処理完了: ${result.message}`);
 				onSuccess?.();
 				handleClose();
 			} else {

@@ -31,8 +31,6 @@
 	// --- Onsen pricing constants ---
 	const ADULT_PRICE = 1800;
 	const CHILD_PRICE = 1000;
-	const ADULT_DISCOUNT_PRICE = 1600;
-	const CHILD_DISCOUNT_PRICE = 900;
 	const FACE_TOWEL_PRICE = 220;
 	const BATH_TOWEL_PRICE = 700;
 
@@ -44,34 +42,60 @@
 		{ value: 'residence_card', label: '在留カード / Residence Card' }
 	];
 
-	// --- Onsen discount logic (copied from OnsenDetails) ---
-	$: discountActive = (() => {
+	// --- Bath availability check logic (copied from OnsenDetails) ---
+	function getBathAvailabilityInfo() {
 		const now = new Date();
+		const today = now.getDate();
 		const month = now.getMonth() + 1; // 1-12
 		const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
+		const unavailable = [];
 
-		// November-March discount (winter months)
-		if (month >= 11 || month <= 3) return true;
-
+		// Rule 1: Ōyu (大湯)
 		const oyuCleaningDates = [3, 11, 18, 27];
-		const isOyuCleaningDay = oyuCleaningDates.includes(now.getDate());
-		if (isOyuCleaningDay && currentTime >= 1200 && currentTime <= 1500) return true;
+		const oyuSpecialDates = [
+			{ month: 5, day: 7 },
+			{ month: 10, day: 7 },
+			{ month: 12, day: 30 }
+		];
+		const isOyuCleaningDay =
+			oyuCleaningDates.includes(today) ||
+			oyuSpecialDates.some((d) => d.month === month && d.day === today);
+		if (isOyuCleaningDay && currentTime >= 900 && currentTime < 1600) {
+			unavailable.push('大湯（Ōyu）');
+		}
 
-		// Every 6th day discount
+		// Rule 2: Wata-no-yu (綿の湯)
 		const anchorDate = new Date('2025-08-01T00:00:00Z');
-		const anchorUTC = anchorDate.getTime();
-		const todayUTC = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+		const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+		const anchorUTC = Date.UTC(
+			anchorDate.getUTCFullYear(),
+			anchorDate.getUTCMonth(),
+			anchorDate.getUTCDate()
+		);
 		const daysSinceAnchor = Math.floor((todayUTC - anchorUTC) / (1000 * 60 * 60 * 24));
-		if (daysSinceAnchor % 6 === 0) return true;
+		if (daysSinceAnchor % 2 === 0 && currentTime >= 1000 && currentTime < 1300) {
+			unavailable.push('綿の湯（Wata no Yu）');
+		}
 
-		return false;
-	})();
+		// Rule 3: Kakke-no-yu (脚気の湯)
+		if (today % 2 === 0 && currentTime >= 1000 && currentTime < 1300) {
+			unavailable.push('脚気の湯（Kakke no Yu）');
+		}
+
+		return {
+			hasUnavailableBaths: unavailable.length > 0,
+			unavailableBaths: unavailable
+		};
+	}
+
+	$: bathAvailabilityInfo = getBathAvailabilityInfo();
+	$: hasUnavailableBaths = bathAvailabilityInfo.hasUnavailableBaths;
 
 	// Onsen calculations
 	$: totalAdultCount = adultMaleCount + adultFemaleCount;
 	$: totalChildCount = childMaleCount + childFemaleCount;
-	$: adultUnitPrice = discountActive ? ADULT_DISCOUNT_PRICE : ADULT_PRICE;
-	$: childUnitPrice = discountActive ? CHILD_DISCOUNT_PRICE : CHILD_PRICE;
+	$: adultUnitPrice = ADULT_PRICE; // Always use regular price
+	$: childUnitPrice = CHILD_PRICE; // Always use regular price
 	$: adultSubtotal = adultUnitPrice * totalAdultCount;
 	$: childSubtotal = childUnitPrice * totalChildCount;
 	$: faceTowelSubtotal = FACE_TOWEL_PRICE * faceTowelCount;
@@ -190,7 +214,8 @@
 				// 根據服務類型，附加特定的資料
 				...(serviceType === 'Bike' && {
 					bikeCount: bikeCount,
-					rentalPlan: rentalPlan
+					rentalPlan: rentalPlan,
+					documentType: documentType
 				}),
 				...(serviceType === 'Luggage' && {
 					luggageCount: luggageCount,
@@ -206,8 +231,7 @@
 					totalAdultCount: totalAdultCount,
 					totalChildCount: totalChildCount,
 					faceTowelCount: faceTowelCount,
-					bathTowelCount: bathTowelCount,
-					discountApplied: discountActive
+					bathTowelCount: bathTowelCount
 				})
 			};
 
@@ -227,7 +251,10 @@
 			} else {
 				const error = await response.json();
 				console.log('API Error Response:', error); // Debug log
-				alert(`エラー (Error): ${error.error || error.message || 'Unknown error'}`);
+				console.log('Sent data:', staffInput); // Debug log
+				alert(
+					`エラー (Error): ${error.error || error.message || 'Unknown error'}\nDetails: ${JSON.stringify(error.details)}`
+				);
 			}
 		} catch (err) {
 			console.error('Counter registration submission error:', err);
@@ -550,22 +577,22 @@
 							</div>
 						</div>
 
-						<!-- Discount Info -->
-						{#if discountActive}
-							<div class="bg-green-50 border border-green-200 rounded-lg p-3">
+						<!-- Bath Availability Warning -->
+						{#if hasUnavailableBaths}
+							<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
 								<div class="flex items-center">
-									<svg class="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+									<svg class="w-4 h-4 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
 										<path
 											fill-rule="evenodd"
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+											d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
 											clip-rule="evenodd"
 										/>
 									</svg>
-									<span class="text-sm font-medium text-green-800">割引適用中　Discount Active</span
+									<span class="text-sm font-medium text-yellow-800">一部浴場利用不可　Some Baths Unavailable</span
 									>
 								</div>
-								<p class="text-xs text-green-700 mt-1">
-									大人: ¥{adultUnitPrice.toLocaleString()}, 小人: ¥{childUnitPrice.toLocaleString()}
+								<p class="text-xs text-yellow-700 mt-1">
+									清掃中のため一部の浴場が利用できません。<br />Some baths are under maintenance.
 								</p>
 							</div>
 						{/if}

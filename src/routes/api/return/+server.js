@@ -110,13 +110,6 @@ export async function POST({ request }) {
 		const isLate = now > expectedReturn;
 		const minutesLate = isLate ? Math.ceil((now - expectedReturn) / (1000 * 60)) : 0;
 
-		// Calculate late fees for bike rentals (30min increments, ¥500 each)
-		let lateFee = 0;
-		if (isLate && currentRental.serviceType === 'Bike') {
-			const thirtyMinIncrements = Math.ceil(minutesLate / 30);
-			lateFee = thirtyMinIncrements * 500;
-		}
-
 		// Determine final status based on service type
 		const finalStatus =
 			currentRental.serviceType === 'Luggage' ? 'Closed (Picked Up)' : 'Closed';
@@ -176,50 +169,69 @@ export async function POST({ request }) {
 				resourceReleaseData.keysReturned = returningKeys;
 			}
 		} else if (serviceType === 'Luggage') {
-			// For luggage, verify customer identity or pickup authorization
-			if (!returnData.customerVerified) {
-				return json(
-					{
-						error: 'Customer verification required',
-						message: 'Customer identity must be verified before luggage pickup'
-					},
-					{ status: 400 }
-				);
-			}
-
+			// Luggage pickup - no additional verification required
 			resourceReleaseData.luggagePickedUp = true;
-			resourceReleaseData.pickupAuthorized = returnData.customerVerified;
 		}
 
-		// Prepare data for Google Sheets update
-		const updates = {
-			status: finalStatus,
-			returnStaff: returnData.returnStaff || (currentRental.serviceType === 'Luggage' ? 'Self-Service' : ''),
-			returnedAt: new Date().toISOString(),
-			goodCondition: returnData.goodCondition ? 'TRUE' : 'FALSE',
-			returnNotes: returnData.returnNotes || '',
-			isLate: isLate ? 'TRUE' : 'FALSE',
-			minutesLate: minutesLate,
-			damageReported: returnData.goodCondition ? 'FALSE' : 'TRUE', // If not good condition, mark as damage reported
-			repairRequired: returnData.repairRequired ? 'TRUE' : 'FALSE',
-			replacementRequired: false, // Since we only have goodCondition, not missing items
-			lastUpdated: new Date().toISOString()
-		};
+		// Prepare service-specific data for Google Sheets update
+		let updates = {};
+		let columnMap = {};
 
-		// Column mapping - standardized across all endpoints
-		const columnMap = {
-			status: 'B',
-			returnStaff: 'T',
-			returnedAt: 'S',
-			goodCondition: 'U',
-			returnNotes: 'V',
-			isLate: 'W',
-			minutesLate: 'X',
-			damageReported: 'AA',
-			repairRequired: 'AB',
-			replacementRequired: 'AC',
-			lastUpdated: 'D'
-		};
+		if (serviceType === 'Luggage') {
+			// Luggage-specific updates (minimal fields only)
+			updates = {
+				status: finalStatus, // 'Closed (Picked Up)'
+				returnedAt: new Date().toISOString(),
+				lastUpdated: new Date().toISOString()
+			};
+
+			// Only add returnNotes if provided
+			if (returnData.returnNotes && returnData.returnNotes.trim()) {
+				updates.returnNotes = returnData.returnNotes.trim();
+			}
+
+			// Luggage-specific column mapping
+			columnMap = {
+				status: 'B',
+				returnedAt: 'T',
+				returnNotes: 'W',
+				lastUpdated: 'D'
+			};
+		} else {
+			// Bike/Onsen updates (full fields including staff)
+			updates = {
+				status: finalStatus,
+				returnStaff: returnData.returnStaff,
+				returnedAt: new Date().toISOString(),
+				goodCondition: returnData.goodCondition ? 'TRUE' : 'FALSE',
+				isLate: isLate ? 'TRUE' : 'FALSE',
+				minutesLate: minutesLate,
+				damageReported: returnData.goodCondition ? 'FALSE' : 'TRUE',
+				repairRequired: returnData.repairRequired ? 'TRUE' : 'FALSE',
+				replacementRequired: false,
+				lastUpdated: new Date().toISOString()
+			};
+
+			// Only add returnNotes if provided
+			if (returnData.returnNotes && returnData.returnNotes.trim()) {
+				updates.returnNotes = returnData.returnNotes.trim();
+			}
+
+			// Bike/Onsen column mapping
+			columnMap = {
+				status: 'B',
+				returnStaff: 'U',
+				returnedAt: 'T', 
+				goodCondition: 'V',
+				returnNotes: 'W',
+				isLate: 'X',
+				minutesLate: 'Y',
+				damageReported: 'AB',
+				repairRequired: 'AC',
+				replacementRequired: 'AD',
+				lastUpdated: 'D'
+			};
+		}
 
 		// Build batch update requests
 		const updateRequests = [];
@@ -243,20 +255,11 @@ export async function POST({ request }) {
 			});
 		}
 
-		// Log the return for audit purposes
-		const serviceLabel = serviceType === 'Luggage' ? 'pickup' : 'return';
-		const staffInfo = returnData.returnStaff || (serviceType === 'Luggage' ? 'Self-Service' : 'Unknown');
-		console.log(
-			`${serviceType} ${serviceLabel} processed: ${returnData.rentalID} by ${staffInfo} - Condition: ${returnData.goodCondition ? 'Good' : 'Issues reported'} - Late fee: ¥${lateFee}`
-		);
 
 		// Prepare service-specific response messages
 		let serviceMessage = '';
 		if (serviceType === 'Bike') {
-			serviceMessage =
-				lateFee > 0
-					? `Bike return completed with late fee of ¥${lateFee.toLocaleString()}`
-					: 'Bike return completed successfully';
+			serviceMessage = 'Bike return completed successfully';
 		} else if (serviceType === 'Onsen') {
 			serviceMessage = 'Onsen pass return completed successfully';
 		} else if (serviceType === 'Luggage') {
@@ -272,23 +275,15 @@ export async function POST({ request }) {
 				serviceType,
 				previousStatus: 'Active',
 				newStatus: finalStatus,
-				returnStaff: returnData.returnStaff || (serviceType === 'Luggage' ? 'Self-Service' : ''),
+				...(serviceType !== 'Luggage' && { returnStaff: returnData.returnStaff }),
 				returnedAt: updates.returnedAt,
-				goodCondition: returnData.goodCondition,
-				returnNotes: returnData.returnNotes,
+				...(serviceType !== 'Luggage' && { goodCondition: returnData.goodCondition }),
+				...(returnData.returnNotes && { returnNotes: returnData.returnNotes }),
 				customerName: currentRental.customerName,
-				isLate,
-				...(minutesLate > 0 && { minutesLate }),
-				...(lateFee > 0 && { lateFee }),
+				...(serviceType !== 'Luggage' && { isLate }),
+				...(serviceType !== 'Luggage' && minutesLate > 0 && { minutesLate }),
 				...resourceReleaseData
 			},
-			...(lateFee > 0 && {
-				billing: {
-					originalPrice: currentRental.totalPrice,
-					lateFee,
-					totalDue: Number(currentRental.totalPrice || 0) + lateFee
-				}
-			}),
 			workflow: {
 				completed: [
 					'Customer registration',
@@ -355,18 +350,12 @@ export async function GET() {
 				conditionalFields: {
 					Bike: ['bikeNumbers (array of bikes being returned)'],
 					Onsen: ['onsenKeyNumbers (array of keys being returned)'],
-					Luggage: ['customerVerified (boolean - identity confirmed)']
+					Luggage: []
 				},
 				optionalFields: [
 					'goodCondition (boolean - true if item in good condition)',
-					'returnNotes (return notes)',
-					'customerVerified (for luggage pickup)'
+					'returnNotes (return notes)'
 				],
-				lateFeeCalculation: {
-					Bike: '¥500 per 30-minute increment after expected return',
-					Onsen: 'No late fees',
-					Luggage: 'No late fees'
-				},
 				statusTransitions: {
 					Bike: 'Active → Closed',
 					Onsen: 'Active → Closed',
