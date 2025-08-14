@@ -11,6 +11,7 @@
 	let adultFemaleCount = data.adultFemaleCount || 0;
 	let childMaleCount = data.childMaleCount || 0;
 	let childFemaleCount = data.childFemaleCount || 0;
+	let kidsCount = data.kidsCount || 0;
 	let faceTowelCount = data.faceTowelCount || 0;
 	let bathTowelCount = data.bathTowelCount || 0;
 	let origin = data.origin || '';
@@ -87,6 +88,7 @@
 
 	const ADULT_PRICE = 1800;
 	const CHILD_PRICE = 1000;
+	const KIDS_PRICE = 0;
 	const FACE_TOWEL_PRICE = 220;
 	const BATH_TOWEL_PRICE = 700;
 
@@ -150,16 +152,19 @@
 	$: totalChildCount = childMaleCount + childFemaleCount;
 	$: adultUnitPrice = ADULT_PRICE; // Always use regular price
 	$: childUnitPrice = CHILD_PRICE; // Always use regular price
+	$: kidsUnitPrice = KIDS_PRICE; // Kids price
 	$: adultSubtotal = adultUnitPrice * totalAdultCount;
 	$: childSubtotal = childUnitPrice * totalChildCount;
+	$: kidsSubtotal = kidsUnitPrice * kidsCount;
 	$: faceTowelSubtotal = FACE_TOWEL_PRICE * faceTowelCount;
 	$: bathTowelSubtotal = BATH_TOWEL_PRICE * bathTowelCount;
-	$: totalPrice = adultSubtotal + childSubtotal + faceTowelSubtotal + bathTowelSubtotal;
+	$: totalPrice =
+		adultSubtotal + childSubtotal + kidsSubtotal + faceTowelSubtotal + bathTowelSubtotal;
 	$: isValid =
 		customerName.trim() &&
 		customerContact.trim() &&
 		documentType &&
-		(totalAdultCount > 0 || totalChildCount > 0);
+		(totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0);
 
 	function handleNext() {
 		if (isValid && onComplete) {
@@ -175,6 +180,7 @@
 					adultFemaleCount,
 					childMaleCount,
 					childFemaleCount,
+					kidsCount,
 					totalAdultCount,
 					totalChildCount,
 					faceTowelCount,
@@ -369,6 +375,29 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Kids Section -->
+			<div class="space-y-4 col-span-full lg:col-span-1 lg:max-w-md">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-2">
+					幼児<br />Kids (Under 7 YO)
+				</h4>
+
+				<!-- Kids Count -->
+				<div class="form-group">
+					<div class="flex items-center justify-between">
+						<select id="kidsCount" bind:value={kidsCount} class="form-select flex-1">
+							{#each Array(10) as _, i}
+								<option value={i}>{i}</option>
+							{/each}
+						</select>
+						<div class="ml-4 text-right">
+							<div class="font-semibold text-gray-900">
+								¥{KIDS_PRICE.toLocaleString()}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -433,10 +462,11 @@
 						/>共同浴場の鍵は17:30までにご返却ください。
 					</li>
 					<li>
-						Please note that keys for the public bathhouses must be borrowed and returned on the day
-						you purchase the pass. <br />The included ticket for the other onsen facility never
-						expires and can be used anytime. <br />Bathhouses in maintenance are not available.<br
-						/>All keys must be returned by 17:30 (5:30 PM).
+						Keys for the public bathhouses must be borrowed and returned on the same day you
+						purchase your pass.<br />Your pass also includes admission to Kaede no Yu, and this
+						ticket never expires. Simply present your pass at the Kaede no Yu front desk to enter.<br
+						/>Please be aware that the public bathhouses may be temporarily closed for cleaning
+						during the day.<br />All keys must be returned by 5:30 PM.
 					</li>
 				</ul>
 			</div>
@@ -482,6 +512,15 @@
 							<span></span>
 						</div>
 					{/if}
+				{/if}
+
+				{#if kidsCount > 0}
+					<div class="flex justify-between">
+						<span
+							>幼児 {kidsCount}名<br />Kids Under 7 YO {kidsCount} × ¥{kidsUnitPrice.toLocaleString()}</span
+						>
+						<span>¥{kidsSubtotal.toLocaleString()}</span>
+					</div>
 				{/if}
 
 				{#if faceTowelCount > 0}

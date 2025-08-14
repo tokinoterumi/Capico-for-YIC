@@ -112,8 +112,8 @@ function validateRentalData(data, registrationType) {
 		if (registrationType === REGISTRATION_TYPES.CUSTOMER && !data.agreement) {
 			errors.push('Agreement is required for onsen service');
 		}
-		if (!data.totalAdultCount && !data.totalChildCount) {
-			errors.push('At least one adult or child count is required');
+		if (!data.totalAdultCount && !data.totalChildCount && !data.kidsCount) {
+			errors.push('At least one adult, child, or kids count is required');
 		}
 	}
 
@@ -235,7 +235,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		onsenRow[37] = data.childMaleCount || 0; // AL: boyCount
 		onsenRow[38] = data.childFemaleCount || 0; // AM: girlCount
 		onsenRow[39] = data.totalChildCount || 0; // AN: totalChildCount
-		onsenRow[40] = 0; // AO: kidsCount
+		onsenRow[40] = data.kidsCount || 0; // AO: kidsCount
 		onsenRow[41] = data.faceTowelCount || 0; // AP: faceTowelCount
 		onsenRow[42] = data.bathTowelCount || 0; // AQ: bathTowelCount
 

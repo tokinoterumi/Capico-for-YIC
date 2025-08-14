@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 // --- 憑証処理 ---
 let CREDENTIALS;
@@ -34,14 +34,16 @@ const COLUMN_MAPPING = {
 	customerName: 'お客様名',
 	customerContact: '連絡先',
 	totalPrice: '料金',
+	unavailableBaths: '利用不可浴場',
+	companion: '同行者',
 	comeFrom: 'お住まい',
 	totalAdultCount: '大人',
 	totalChildCount: '小人',
-	maleCount: '男性',
-	femaleCount: '女性',
-	boyCount: '男の子',
-	girlCount: '女の子',
-	kidsCount: '未就学児',
+	adultMaleCount: '男性',
+	adultFemaleCount: '女性',
+	childMaleCount: '男の子',
+	childFemaleCount: '女の子',
+	kidsCount: '幼児',
 	faceTowelCount: 'フェイスタオル',
 	bathTowelCount: 'バスタオル',
 	checkInStaff: '担当',
@@ -54,13 +56,15 @@ const EXPORT_FIELDS = [
 	'customerName',
 	'customerContact',
 	'totalPrice',
+	'unavailableBaths',
+	'companion',
 	'comeFrom',
 	'totalAdultCount',
 	'totalChildCount',
-	'maleCount',
-	'femaleCount',
-	'boyCount',
-	'girlCount',
+	'adultMaleCount',
+	'adultFemaleCount',
+	'childMaleCount',
+	'childFemaleCount',
 	'kidsCount',
 	'faceTowelCount',
 	'bathTowelCount',
@@ -80,7 +84,7 @@ export async function GET({ url }) {
 		// Get all rental data
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AU'
+			range: 'Rentals!A:AR'
 		});
 
 		const rows = response.data.values || [];
@@ -134,13 +138,28 @@ export async function GET({ url }) {
 			);
 		}
 
-		// Prepare data for Excel export
-		const exportData = onsenRentals.map((rental) => {
-			const exportRow = {};
-			EXPORT_FIELDS.forEach((field) => {
-				const japaneseHeader = COLUMN_MAPPING[field] || field;
-				let value = rental[field] || '';
+		// Create workbook using ExcelJS
+		const workbook = new ExcelJS.Workbook();
+		const worksheet = workbook.addWorksheet('外湯めぐりdata');
 
+		// Add headers
+		const headers_row = EXPORT_FIELDS.map(field => COLUMN_MAPPING[field] || field);
+		worksheet.addRow(headers_row);
+
+		// Style headers
+		const headerRow = worksheet.getRow(1);
+		headerRow.font = { bold: true };
+		headerRow.fill = {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: 'E3F2FD' }
+		};
+
+		// Add data rows
+		onsenRentals.forEach(rental => {
+			const row = EXPORT_FIELDS.map(field => {
+				let value = rental[field] || '';
+				
 				// Format specific fields
 				if (field === 'totalPrice') {
 					value = value ? `¥${Number(value).toLocaleString()}` : '¥0';
@@ -152,25 +171,19 @@ export async function GET({ url }) {
 						}
 					}
 				}
-
-				exportRow[japaneseHeader] = value;
+				
+				return value;
 			});
-			return exportRow;
+			worksheet.addRow(row);
 		});
 
-		// Create workbook and worksheet
-		const workbook = XLSX.utils.book_new();
-		const worksheet = XLSX.utils.json_to_sheet(exportData);
-
 		// Auto-size columns
-		const cols = EXPORT_FIELDS.map(() => ({ wch: 15 }));
-		worksheet['!cols'] = cols;
-
-		// Add worksheet to workbook
-		XLSX.utils.book_append_sheet(workbook, worksheet, '外湯めぐりdata');
+		worksheet.columns.forEach(column => {
+			column.width = 15;
+		});
 
 		// Generate Excel file buffer
-		const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+		const excelBuffer = await workbook.xlsx.writeBuffer();
 
 		// Generate filename with date range or current date
 		let filename;
@@ -195,9 +208,10 @@ export async function GET({ url }) {
 				'Content-Length': excelBuffer.length.toString()
 			}
 		});
+
 	} catch (error) {
 		console.error('Onsen Export API Error:', error);
-
+		
 		if (error.message.includes('PERMISSION_DENIED')) {
 			return json(
 				{

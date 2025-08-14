@@ -317,9 +317,9 @@
 						/>マナーを守って気持ちよく大切に使いましょう。
 					</li>
 					<li>
-						Keys must be returned by 17:30.<br />Exceeding registered number of users incurs ¥30,000
-						fee.<br />Children 7+ must use gender-separated baths.<br />Please rinse yourself before
-						entering the bath.<br />Photography is strictly prohibited.
+						All keys must be returned by 5:30 PM. <br /> bathing is not permitted for children aged
+						7 and older. Boys must use the men's bath, and girls must use the women's bath.<br /> Please
+						be considerate of others and help us keep the baths clean for everyone to enjoy.
 					</li>
 				</ul>
 			</div>

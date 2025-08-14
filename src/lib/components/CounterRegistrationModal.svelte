@@ -18,6 +18,7 @@
 	let adultFemaleCount = 0;
 	let childMaleCount = 0;
 	let childFemaleCount = 0;
+	let kidsCount = 0;
 	let faceTowelCount = 0;
 	let bathTowelCount = 0;
 	let documentType = '';
@@ -31,6 +32,7 @@
 	// --- Onsen pricing constants ---
 	const ADULT_PRICE = 1800;
 	const CHILD_PRICE = 1000;
+	const KIDS_PRICE = 0; // Free for kids under 7
 	const FACE_TOWEL_PRICE = 220;
 	const BATH_TOWEL_PRICE = 700;
 
@@ -96,11 +98,13 @@
 	$: totalChildCount = childMaleCount + childFemaleCount;
 	$: adultUnitPrice = ADULT_PRICE; // Always use regular price
 	$: childUnitPrice = CHILD_PRICE; // Always use regular price
+	$: kidsUnitPrice = KIDS_PRICE; // Kids price
 	$: adultSubtotal = adultUnitPrice * totalAdultCount;
 	$: childSubtotal = childUnitPrice * totalChildCount;
+	$: kidsSubtotal = kidsUnitPrice * kidsCount;
 	$: faceTowelSubtotal = FACE_TOWEL_PRICE * faceTowelCount;
 	$: bathTowelSubtotal = BATH_TOWEL_PRICE * bathTowelCount;
-	$: onsenTotalPrice = adultSubtotal + childSubtotal + faceTowelSubtotal + bathTowelSubtotal;
+	$: onsenTotalPrice = adultSubtotal + childSubtotal + kidsSubtotal + faceTowelSubtotal + bathTowelSubtotal;
 
 	// --- 定義服務類型和價格 (這部分保持不變) ---
 	interface ServicePricing {
@@ -164,7 +168,7 @@
 		customerContact.trim() &&
 		serviceType &&
 		(serviceType !== 'Bike' || rentalPlan) &&
-		(serviceType !== 'Onsen' || (documentType && (totalAdultCount > 0 || totalChildCount > 0))) &&
+		(serviceType !== 'Onsen' || (documentType && (totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0))) &&
 		isExpectedReturnTimeValid;
 
 	// --- 當 Modal 打開時重設表單 (這部分保持不變) ---
@@ -183,6 +187,7 @@
 		adultFemaleCount = 0;
 		childMaleCount = 0;
 		childFemaleCount = 0;
+		kidsCount = 0;
 		faceTowelCount = 0;
 		bathTowelCount = 0;
 		documentType = '';
@@ -228,6 +233,7 @@
 					adultFemaleCount: adultFemaleCount,
 					childMaleCount: childMaleCount,
 					childFemaleCount: childFemaleCount,
+					kidsCount: kidsCount,
 					totalAdultCount: totalAdultCount,
 					totalChildCount: totalChildCount,
 					faceTowelCount: faceTowelCount,
@@ -542,6 +548,24 @@
 							</div>
 						</div>
 
+						<!-- Kids Count -->
+						<div class="space-y-3">
+							<h4 class="font-medium text-gray-900">幼児　Kids Under 7 YO</h4>
+							<div class="form-group">
+								<label for="kidsCount" class="form-label">人数　Count</label>
+								<select
+									id="kidsCount"
+									bind:value={kidsCount}
+									class="form-select"
+									disabled={processing}
+								>
+									{#each Array(6) as _, i}
+										<option value={i}>{i}</option>
+									{/each}
+								</select>
+							</div>
+						</div>
+
 						<!-- Towel Rentals -->
 						<div class="space-y-3">
 							<h4 class="font-medium text-gray-900">タオルのご購入　Need Towel</h4>
@@ -598,7 +622,7 @@
 						{/if}
 
 						<!-- Pricing Breakdown -->
-						{#if totalAdultCount > 0 || totalChildCount > 0}
+						{#if totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0}
 							<div class="bg-gray-50 rounded-lg p-3">
 								<h5 class="font-medium text-gray-900 mb-2">料金内訳　Price Breakdown</h5>
 								<div class="space-y-1 text-sm">
@@ -612,6 +636,12 @@
 										<div class="flex justify-between">
 											<span>子供 {totalChildCount}名 × ¥{childUnitPrice.toLocaleString()}</span>
 											<span>¥{childSubtotal.toLocaleString()}</span>
+										</div>
+									{/if}
+									{#if kidsCount > 0}
+										<div class="flex justify-between">
+											<span>幼児 {kidsCount}名 × ¥{kidsUnitPrice.toLocaleString()}</span>
+											<span>¥{kidsSubtotal.toLocaleString()}</span>
 										</div>
 									{/if}
 									{#if faceTowelCount > 0}
@@ -657,8 +687,11 @@
 										{#if totalChildCount > 0}{#if totalAdultCount > 0}
 												+
 											{/if}小人 {totalChildCount}名{/if}
+										{#if kidsCount > 0}{#if totalAdultCount > 0 || totalChildCount > 0}
+												+
+											{/if}幼児 {kidsCount}名{/if}
 										{#if faceTowelCount > 0 || bathTowelCount > 0}
-											{#if totalAdultCount > 0 || totalChildCount > 0}
+											{#if totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0}
 												+
 											{/if}タオル
 										{/if}

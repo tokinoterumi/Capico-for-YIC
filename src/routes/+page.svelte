@@ -198,10 +198,10 @@
 	<title>Service @YIC</title>
 	<meta
 		name="description"
-		content="Yamanouchi Information Center Service - Bike, Onsen Pass, Luggage Storage"
+		content="Yamanouchi Information Center Service - Bike, Yudanaka Onsen Tour Pass, Luggage Storage"
 	/>
 	<meta name="theme-color" content="#1e40af" />
-	<link rel="manifest" href="/manifest.json" />
+	<link rel="" href="/manifest.json" />
 </svelte:head>
 
 <main

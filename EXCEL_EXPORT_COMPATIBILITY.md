@@ -2,44 +2,17 @@
 
 ## 📊 Current Implementation
 
-Your application uses **two Excel export solutions** for maximum reliability:
+Your application uses **ExcelJS package** for Excel exports:
 
-### 1. **Primary: XLSX Package** (`/api/export/onsen`)
-- **Package**: `xlsx@0.18.5`
-- **Pros**: Lightweight, fast, widely used
-- **Cons**: May have issues in some serverless environments
-- **Status**: ✅ Working locally
-
-### 2. **Backup: ExcelJS Package** (`/api/export/onsen-v2`) 
+### **ExcelJS Package** (`/api/export/onsen`) 
 - **Package**: `exceljs@4.4.0`
-- **Pros**: More robust, better serverless compatibility, richer formatting
-- **Cons**: Larger bundle size
-- **Status**: ✅ Working locally, better Vercel compatibility
+- **Pros**: More robust, better serverless compatibility, richer formatting, supports kids field
+- **Cons**: Larger bundle size than XLSX
+- **Status**: ✅ Working locally, excellent Vercel compatibility
 
 ## 🚀 Deployment Strategy
 
-### **Option A: Test XLSX First (Recommended)**
-1. Deploy with current XLSX implementation
-2. Test the export functionality on Vercel
-3. If it works → stick with XLSX (smaller bundle)
-4. If it fails → switch to ExcelJS
-
-### **Option B: Use ExcelJS (Safer)**
-1. Switch to ExcelJS immediately for guaranteed compatibility
-2. Update the admin panel to use `/api/export/onsen-v2`
-
-## 🔧 How to Switch to ExcelJS (if needed)
-
-If XLSX doesn't work on Vercel, update the admin panel:
-
-```javascript
-// In /src/routes/admin/+page.svelte
-// Change this line:
-let url = '/api/export/onsen';
-
-// To this:
-let url = '/api/export/onsen-v2';
-```
+The application is configured to use ExcelJS for reliable serverless compatibility and full feature support including the new kids age group tracking.
 
 ## 🧪 Testing on Vercel
 
