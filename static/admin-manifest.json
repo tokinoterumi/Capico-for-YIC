@@ -2,18 +2,12 @@
 	"name": "Capico Admin for YIC",
 	"short_name": "Capico Admin",
 	"description": "Admin panel for Yamanouchi Information Center",
-	"start_url": "/?admin=true",
+	"start_url": "/admin/",
 	"display": "standalone",
-	"scope": "/",
+	"scope": "/admin/",
 	"background_color": "#dc2626",
 	"theme_color": "#dc2626",
 	"icons": [
-		{
-			"src": "/Capico.png",
-			"sizes": "144x144",
-			"type": "image/png",
-			"purpose": "any"
-		},
 		{
 			"src": "/Capico.png",
 			"sizes": "192x192",
@@ -23,12 +17,6 @@
 		{
 			"src": "/Capico.png",
 			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "any"
-		},
-		{
-			"src": "/Capico.png",
-			"sizes": "2048x2048",
 			"type": "image/png",
 			"purpose": "any"
 		}

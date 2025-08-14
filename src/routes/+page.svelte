@@ -72,13 +72,6 @@
 	onMount(() => {
 		// Modern SvelteKit approach using reactive statement with $page store
 		isKiosk = $page.url.searchParams.get('kiosk') === 'true';
-		
-		// Check if this is an admin PWA launch
-		const adminParam = $page.url.searchParams.get('admin');
-		if (adminParam === 'true') {
-			// Redirect to admin panel
-			window.location.href = '/admin';
-		}
 	});
 
 	// Alternative approach using reactive statement (runs when $page changes)
