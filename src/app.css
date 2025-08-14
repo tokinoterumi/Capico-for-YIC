@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles for the Tourist Rental Service */
+
+:root {
+	/* Brand colors */
+	--primary-blue: #1e40af;
+	--primary-blue-hover: #1d4ed8;
+	--primary-blue-light: #dbeafe;
+	--success-green: #059669;
+	--warning-orange: #d97706;
+	--error-red: #dc2626;
+
+	/* Status colors for rental states */
+	--status-pending: #f59e0b;
+	--status-active: #10b981;
+	--status-awaiting: #6366f1;
+	--status-troubled: #ef4444;
+	--status-closed: #6b7280;
+
+	/* Neutral grays */
+	--gray-50: #f9fafb;
+	--gray-100: #f3f4f6;
+	--gray-200: #e5e7eb;
+	--gray-300: #d1d5db;
+	--gray-500: #6b7280;
+	--gray-700: #374151;
+	--gray-900: hsl(221, 39%, 11%);
+}
+
+/* Base typography - Inter font from Google Fonts */
+body {
+	font-family:
+		'Inter',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
+	font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure full height layout */
+html,
+body,
+#svelte {
+	height: 100%;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--gray-300);
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--gray-500);
+}
+
+/* Focus styles for accessibility */
+.focus-visible {
+	outline: 2px solid var(--primary-blue);
+	outline-offset: 2px;
+}
+
+/* Custom button variants */
+.btn-primary {
+	@apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+	@apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+.btn-danger {
+	@apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+}
+
+.btn-success {
+	@apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+}
+
+/* Status badge styles */
+.status-badge {
+	@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-pending {
+	@apply bg-amber-100 text-amber-800;
+}
+
+.status-awaiting-storage {
+	@apply bg-indigo-400 text-white;
+}
+
+.status-active {
+	@apply bg-green-100 text-green-800;
+}
+
+.status-troubled {
+	@apply bg-red-100 text-red-800;
+}
+
+.status-closed,
+.status-closed-picked-up {
+	@apply bg-gray-100 text-gray-800;
+}
+
+/* Card components */
+.card {
+	@apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.card-header {
+	@apply border-b border-gray-200 pb-4 mb-4;
+}
+
+/* Form styles */
+.form-group {
+	@apply space-y-2;
+}
+
+.form-label {
+	@apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+	@apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+}
+
+.form-select {
+	@apply w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+}
+
+.form-textarea {
+	@apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+	resize: vertical;
+}
+
+.form-checkbox {
+	@apply h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500;
+}
+
+.form-radio {
+	@apply h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500;
+}
+
+/* Error states */
+.form-error {
+	@apply border-red-300 focus:ring-red-500 focus:border-red-500;
+}
+
+.error-message {
+	@apply text-sm text-red-600;
+}
+
+/* Loading states */
+.loading-spinner {
+	@apply animate-spin h-5 w-5 border-2 border-gray-300 border-t-blue-600 rounded-full;
+}
+
+.loading-pulse {
+	@apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Kiosk-specific styles */
+.kiosk-container {
+	@apply min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4;
+}
+
+.kiosk-card {
+	@apply max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200;
+}
+
+/* Staff panel styles */
+.admin-container {
+	@apply min-h-screen bg-gray-50;
+}
+
+.admin-header {
+	@apply bg-white border-b border-gray-200 px-6 py-4;
+}
+
+.admin-content {
+	@apply p-6;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+	.kiosk-card {
+		@apply mx-4 rounded-lg;
+	}
+
+	.card {
+		@apply p-4;
+	}
+
+	.btn-primary,
+	.btn-secondary,
+	.btn-danger,
+	.btn-success {
+		@apply text-base py-3 px-6;
+	}
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	.card {
+		@apply border-2 border-gray-900;
+	}
+
+	.form-input,
+	.form-select,
+	.form-textarea {
+		@apply border-2 border-gray-900;
+	}
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Print styles */
+@media print {
+	.no-print {
+		display: none !important;
+	}
+
+	.print-break {
+		page-break-after: always;
+	}
+}
