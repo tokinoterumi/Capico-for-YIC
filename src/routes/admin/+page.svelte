@@ -639,7 +639,7 @@
 						clip-rule="evenodd"
 					/>
 				</svg>
-				<span>外湯めぐりデータ出力</span>
+				<span>外湯めぐりデータ</span>
 			</button>
 			<button
 				on:click={() => loadRentals()}

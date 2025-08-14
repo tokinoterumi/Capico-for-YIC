@@ -6,13 +6,13 @@
 	let startDate = '';
 	let endDate = '';
 
-	// Set default date range to current month
+	// Set default date range to project start date and current month end
 	function setDefaultDates() {
 		const now = new Date();
-		const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+		const projectStartDate = new Date(2025, 7, 4); // August 4, 2025 (month is 0-indexed)
 		const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-		startDate = firstDay.toISOString().split('T')[0];
+		startDate = projectStartDate.toISOString().split('T')[0];
 		endDate = lastDay.toISOString().split('T')[0];
 	}
 
@@ -72,6 +72,11 @@
 				const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 				startDate = lastMonth.toISOString().split('T')[0];
 				endDate = lastMonthEnd.toISOString().split('T')[0];
+				break;
+			case 'allPeriod':
+				const projectStartDate = new Date(2025, 7, 4); // August 4, 2025
+				startDate = projectStartDate.toISOString().split('T')[0];
+				endDate = today;
 				break;
 		}
 	}
@@ -153,9 +158,16 @@
 						<button
 							type="button"
 							on:click={() => setDateRange('lastMonth')}
-							class="btn-secondary text-sm py-2 col-span-2"
+							class="btn-secondary text-sm py-2"
 						>
 							先月
+						</button>
+						<button
+							type="button"
+							on:click={() => setDateRange('allPeriod')}
+							class="btn-secondary text-sm py-2"
+						>
+							全期間
 						</button>
 					</div>
 				</div>
