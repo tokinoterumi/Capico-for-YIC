@@ -13,6 +13,7 @@
 	import DetailsModal from '$lib/components/DetailsModal.svelte';
 	import CancelModal from '$lib/components/CancelModal.svelte';
 	import ReturnModal from '$lib/components/ReturnModal.svelte';
+	import EditModal from '$lib/components/EditModal.svelte';
 	import ExportDateRangeModal from '$lib/components/ExportDateRangeModal.svelte';
 
 	// === STATE VARIABLES ===
@@ -37,6 +38,7 @@
 	let showCounterRegistrationModal = false;
 	let showHotelLuggageModal = false;
 	let showExportDateRangeModal = false;
+	let showEditModal = false;
 	let selectedRental = null;
 
 	// Statistics
@@ -61,14 +63,16 @@
 
 	// === LIFECYCLE ===
 	onMount(() => {
-		loadRentals();
+		if (browser) {
+			loadRentals();
 
-		// Set up periodic refresh every 10 seconds for better responsiveness
-		const interval = setInterval(() => {
-			loadRentals(false); // Silent refresh
-		}, 10000); // Reduced from 30s to 10s
+			// Set up periodic refresh every 10 seconds for better responsiveness
+			const interval = setInterval(() => {
+				loadRentals(false); // Silent refresh
+			}, 10000); // Reduced from 30s to 10s
 
-		return () => clearInterval(interval);
+			return () => clearInterval(interval);
+		}
 	});
 
 	// === DATA LOADING ===
@@ -228,6 +232,11 @@
 		showDetailsModal = true;
 	}
 
+	function handleEdit(rental) {
+		selectedRental = rental;
+		showEditModal = true;
+	}
+
 	function handleResolve(rental) {
 		processResolve(rental);
 	}
@@ -365,16 +374,17 @@
 		showCounterRegistrationModal = false;
 		showHotelLuggageModal = false;
 		showExportDateRangeModal = false;
+		showEditModal = false;
 		selectedRental = null;
 	}
 
 	// === REACTIVE STATEMENTS ===
 
-	// Apply filters whenever rentals or filters change
-	$: filteredRentals = applyFilters(rentals);
+	// Apply filters whenever rentals or filters change (client-side only to prevent hydration mismatch)
+	$: filteredRentals = browser ? applyFilters(rentals) : [];
 
-	// Group filtered rentals by status
-	$: groupedRentals = {
+	// Group filtered rentals by status (client-side only)
+	$: groupedRentals = browser ? {
 		pending: filteredRentals.filter((r) => r.status === 'Pending'),
 		awaitingStorage: filteredRentals.filter((r) => r.status === 'Awaiting_Storage'),
 		active: filteredRentals.filter((r) => r.status === 'Active'),
@@ -382,6 +392,12 @@
 		closed: filteredRentals.filter(
 			(r) => r.status === 'Closed' || r.status === 'Closed (Picked Up)' || r.status === 'Completed'
 		)
+	} : {
+		pending: [],
+		awaitingStorage: [],
+		active: [],
+		troubled: [],
+		closed: []
 	};
 
 	// Determine if we have any active filters
@@ -443,6 +459,18 @@
 {#if showReturnModal}
 	<ReturnModal
 		show={showReturnModal}
+		rental={selectedRental}
+		onClose={closeAllModals}
+		onSuccess={() => {
+			closeAllModals();
+			loadRentals();
+		}}
+	/>
+{/if}
+
+{#if showEditModal}
+	<EditModal
+		show={showEditModal}
 		rental={selectedRental}
 		onClose={closeAllModals}
 		onSuccess={() => {
@@ -672,6 +700,7 @@
 						<RentalCard
 							{rental}
 							on:checkin={(e) => handleCheckin(e.detail)}
+							on:edit={(e) => handleEdit(e.detail)}
 							on:cancel={(e) => handleCancel(e.detail)}
 							on:viewDetails={(e) => handleViewDetails(e.detail)}
 						/>
@@ -692,6 +721,7 @@
 						<RentalCard
 							{rental}
 							on:moveToActive={(e) => handleMoveToActive(e.detail)}
+							on:edit={(e) => handleEdit(e.detail)}
 							on:viewDetails={(e) => handleViewDetails(e.detail)}
 						/>
 					{/each}

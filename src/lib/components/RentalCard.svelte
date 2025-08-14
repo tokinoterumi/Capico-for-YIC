@@ -106,6 +106,9 @@
 	function handleResolve() {
 		dispatch('resolve', rental);
 	}
+	function handleEdit() {
+		dispatch('edit', rental);
+	}
 
 	$: timeStatus = getTimeStatus(rental.expectedReturn, rental.serviceType);
 	$: serviceTheme = getServiceTheme(rental.serviceType);
@@ -228,10 +231,11 @@
 		{#if showActions}
 			{#if rental.status === 'Pending'}
 				<button on:click={handleCheckin} class="btn-primary text-sm px-3 py-2">チェックイン</button>
+				<button on:click={handleEdit} class="btn-secondary text-sm px-3 py-2">編集</button>
 				<button on:click={handleCancel} class="btn-secondary text-sm px-3 py-2">キャンセル</button>
 			{:else if rental.status === 'Awaiting_Storage'}
-				<button on:click={handleMoveToActive} class="btn-success text-sm px-3 py-2">保管完了</button
-				>
+				<button on:click={handleMoveToActive} class="btn-success text-sm px-3 py-2">保管完了</button>
+				<button on:click={handleEdit} class="btn-secondary text-sm px-3 py-2">編集</button>
 			{:else if rental.status === 'Active'}
 				<button on:click={handleReturn} class="btn-primary text-sm px-3 py-2">
 					{rental.serviceType === 'Luggage' ? '引き渡し' : '返却'}

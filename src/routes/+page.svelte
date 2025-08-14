@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 	import FormWrapper from '$lib/components/FormWrapper.svelte';
 	import Step1ServiceSelection from '$lib/components/Step1_ServiceSelection.svelte';
 	import BikeDetails from '$lib/components/BikeDetails.svelte';
@@ -71,11 +72,13 @@
 
 	onMount(() => {
 		// Modern SvelteKit approach using reactive statement with $page store
-		isKiosk = $page.url.searchParams.get('kiosk') === 'true';
+		if (browser) {
+			isKiosk = $page.url.searchParams.get('kiosk') === 'true';
+		}
 	});
 
-	// Alternative approach using reactive statement (runs when $page changes)
-	$: if ($page && $page.url) {
+	// Alternative approach using reactive statement (runs when $page changes) - client-side only
+	$: if (browser && $page && $page.url) {
 		isKiosk = $page.url.searchParams.get('kiosk') === 'true';
 	}
 

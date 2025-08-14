@@ -30,10 +30,10 @@
 
 		<!-- PWA Icons and Manifest -->
 		<script>
-		// Conditionally load manifest based on URL path
-		if (!window.location.pathname.startsWith('/admin')) {
-			document.write('<link rel="manifest" href="/manifest.json?v=1.1" />');
-		}
+			// Conditionally load manifest based on URL path
+			if (!window.location.pathname.startsWith('/admin')) {
+				document.write('<link rel="manifest" href="/manifest.json?v=1.1" />');
+			}
 		</script>
 
 		<link rel="apple-touch-icon" sizes="180x180" href="/Capico.png" />
