@@ -5,7 +5,8 @@ import {
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
 	AUTH_SECRET,
-	ALLOWED_EMAIL_DOMAIN
+	ALLOWED_EMAIL_DOMAIN,
+	AUTH_TRUST_HOST
 } from '$env/static/private';
 
 export const { handle: authHandle } = SvelteKitAuth({
@@ -21,6 +22,7 @@ export const { handle: authHandle } = SvelteKitAuth({
 		})
 	],
 	secret: AUTH_SECRET,
+	trustHost: AUTH_TRUST_HOST === 'true',
 	callbacks: {
 		async signIn({ user, account }) {
 			if (account?.provider === 'google') {
