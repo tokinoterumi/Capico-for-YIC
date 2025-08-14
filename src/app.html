@@ -29,7 +29,12 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
 		<!-- PWA Icons and Manifest -->
-		<link rel="manifest" href="/manifest.json?v=1.1" />
+		<script>
+		// Conditionally load manifest based on URL path
+		if (!window.location.pathname.startsWith('/admin')) {
+			document.write('<link rel="manifest" href="/manifest.json?v=1.1" />');
+		}
+		</script>
 
 		<link rel="apple-touch-icon" sizes="180x180" href="/Capico.png" />
 
