@@ -384,21 +384,24 @@
 	$: filteredRentals = browser ? applyFilters(rentals) : [];
 
 	// Group filtered rentals by status (client-side only)
-	$: groupedRentals = browser ? {
-		pending: filteredRentals.filter((r) => r.status === 'Pending'),
-		awaitingStorage: filteredRentals.filter((r) => r.status === 'Awaiting_Storage'),
-		active: filteredRentals.filter((r) => r.status === 'Active'),
-		troubled: filteredRentals.filter((r) => r.status === 'Troubled'),
-		closed: filteredRentals.filter(
-			(r) => r.status === 'Closed' || r.status === 'Closed (Picked Up)' || r.status === 'Completed'
-		)
-	} : {
-		pending: [],
-		awaitingStorage: [],
-		active: [],
-		troubled: [],
-		closed: []
-	};
+	$: groupedRentals = browser
+		? {
+				pending: filteredRentals.filter((r) => r.status === 'Pending'),
+				awaitingStorage: filteredRentals.filter((r) => r.status === 'Awaiting_Storage'),
+				active: filteredRentals.filter((r) => r.status === 'Active'),
+				troubled: filteredRentals.filter((r) => r.status === 'Troubled'),
+				closed: filteredRentals.filter(
+					(r) =>
+						r.status === 'Closed' || r.status === 'Closed (Picked Up)' || r.status === 'Completed'
+				)
+			}
+		: {
+				pending: [],
+				awaitingStorage: [],
+				active: [],
+				troubled: [],
+				closed: []
+			};
 
 	// Determine if we have any active filters
 	$: hasActiveFilters =

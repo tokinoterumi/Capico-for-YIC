@@ -99,7 +99,7 @@
 			<div class="border-b border-gray-200 px-6 py-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-xl font-semibold text-gray-900">
-						外湯めぐりデータ出力<br />
+						外湯めぐりデータ<br />
 						Export Yudanaka Onsen Tour Data
 					</h2>
 					<button on:click={handleClose} class="text-gray-400 hover:text-gray-500">

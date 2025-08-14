@@ -177,6 +177,12 @@
 									<span class="text-gray-800">小人　7~12 YO</span>
 									<span class="font-medium">{rentalData.totalChildCount || 0}名</span>
 								</div>
+								{#if rentalData.kidsCount && rentalData.kidsCount > 0}
+									<div class="flex justify-between">
+										<span class="text-gray-800">小児　Under 6 YO</span>
+										<span class="font-medium">{rentalData.kidsCount}名</span>
+									</div>
+								{/if}
 							</div>
 						</div>
 					{:else if rentalData.serviceType === 'Luggage'}
@@ -201,9 +207,7 @@
 							{formatPrice(rentalData.totalPrice || 0)}
 						</div>
 
-						<div class="text-sm text-gray-800">
-							税込 (Tax inc.)
-						</div>
+						<div class="text-sm text-gray-800">税込 (Tax inc.)</div>
 					</div>
 				</div>
 			</div>
