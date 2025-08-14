@@ -186,43 +186,46 @@ function prepareRowData(data, rentalId, registrationType) {
 		customerName, // E: customerName
 		customerContact, // F: customerContact
 		documentType, // G: documentType
-		data.serviceType || '', // H: serviceType
-		data.rentalPlan || '', // I: rentalPlan
-		data.totalPrice || 0, // J: totalPrice
-		data.expectedReturn || '', // K: expectedReturn
-		agreement, // L: agreement
-		checkInStaff, // M: checkInStaff
-		checkedInAt, // N: checkedInAt
-		'', // O: photoFileID
-		verified, // P: verified
-		'', // Q: storageStaff
-		'', // R: storedAt
-		'', // S: returnedAt
-		'', // T: returnStaff
-		null, // U: goodCondition
-		'', // V: returnNotes
-		false, // W: isLate
-		0, // X: minutesLate
-		registrationType === REGISTRATION_TYPES.HOTEL ? '' : (data.notes || ''), // Y: troubleNotes - no notes for hotel registrations
-		false, // Z: troubleResolved
-		false, // AA: damageReported
-		false, // AB: repairRequired
-		false, // AC: replacementRequired
-		data.bikeCount || 0, // AD: bikeCount
-		'', // AE: bikeNumber
-		'', // AF: onsenKeyNumber
-		data.luggageCount || 0, // AG: luggageCount
-		luggageTagNumber, // AH: luggageTagNumber
-		data.companion || '', // AI: companion
-		data.totalAdultCount || 1, // AJ: totalAdultCount
-		data.totalChildCount || 0, // AK: totalChildCount
-		data.faceTowelCount || 0, // AL: faceTowelCount
-		data.bathTowelCount || 0, // AM: bathTowelCount
-		data.discountApplied || false, // AN: discountApplied
-		partnerHotel, // AO: partnerHotel
-		data.createdBy || checkInStaff, // AP: createdBy
-		data.comeFrom || '', // AQ: comeFrom
-		data.unavailableBaths || '' // AR: unavailableBaths
+		data.comeFrom || '', // H: comeFrom
+		data.serviceType || '', // I: serviceType
+		data.rentalPlan || '', // J: rentalPlan
+		data.totalPrice || 0, // K: totalPrice
+		data.expectedReturn || '', // L: expectedReturn
+		agreement, // M: agreement
+		checkInStaff, // N: checkInStaff
+		checkedInAt, // O: checkedInAt
+		'', // P: photoFileID
+		verified, // Q: verified
+		'', // R: storageStaff
+		'', // S: storedAt
+		'', // T: returnedAt
+		'', // U: returnStaff
+		null, // V: goodCondition
+		'', // W: returnNotes
+		false, // X: isLate
+		0, // Y: minutesLate
+		registrationType === REGISTRATION_TYPES.HOTEL ? '' : (data.notes || ''), // Z: troubleNotes - no notes for hotel registrations
+		false, // AA: troubleResolved
+		false, // AB: damageReported
+		false, // AC: repairRequired
+		false, // AD: replacementRequired
+		data.bikeCount || 0, // AE: bikeCount
+		'', // AF: bikeNumber
+		'', // AG: onsenKeyNumber
+		data.luggageCount || 0, // AH: luggageCount
+		luggageTagNumber, // AI: luggageTagNumber
+		data.adultMaleCount || 0, // AJ: maleCount
+		data.adultFemaleCount || 0, // AK: femaleCount  
+		data.totalAdultCount || 0, // AL: totalAdultCount
+		data.childMaleCount || 0, // AM: boyCount
+		data.childFemaleCount || 0, // AN: girlCount
+		data.totalChildCount || 0, // AO: totalChildCount
+		0, // AP: kidsCount (not currently used)
+		data.faceTowelCount || 0, // AQ: faceTowelCount
+		data.bathTowelCount || 0, // AR: bathTowelCount  
+		data.discountApplied || false, // AS: discountApplied
+		partnerHotel, // AT: partnerHotel
+		data.createdBy || checkInStaff // AU: createdBy
 	];
 }
 
@@ -240,7 +243,7 @@ export async function GET({ url }) {
 		// Get all rental data
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AR'
+			range: 'Rentals!A:AU'
 		});
 
 		const rows = response.data.values || [];
@@ -336,7 +339,7 @@ export async function POST({ request, url }) {
 		// Insert into Google Sheets
 		await sheets.spreadsheets.values.append({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AP',
+			range: 'Rentals!A:AU',
 			valueInputOption: 'RAW',
 			resource: {
 				values: [rowData]
@@ -527,55 +530,62 @@ export async function PUT({ request }) {
 			customerName: 'E',
 			customerContact: 'F',
 			documentType: 'G',
-			serviceType: 'H',
-			rentalPlan: 'I',
-			totalPrice: 'J',
-			expectedReturn: 'K',
-			agreement: 'L',
+			comeFrom: 'H',
+			serviceType: 'I',
+			rentalPlan: 'J',
+			totalPrice: 'K',
+			expectedReturn: 'L',
+			agreement: 'M',
 
 			// Check-in related
-			checkInStaff: 'M',
-			checkedInAt: 'N',
-			photoFileID: 'O',
-			verified: 'P',
+			checkInStaff: 'N',
+			checkedInAt: 'O',
+			photoFileID: 'P',
+			verified: 'Q',
 
 			// Storage related
-			storageStaff: 'Q',
-			storedAt: 'R',
+			storageStaff: 'R',
+			storedAt: 'S',
 
 			// Return related
-			returnedAt: 'S',
-			returnStaff: 'T',
-			goodCondition: 'U',
-			returnNotes: 'V',
-			isLate: 'W',
-			minutesLate: 'X',
+			returnedAt: 'T',
+			returnStaff: 'U',
+			goodCondition: 'V',
+			returnNotes: 'W',
+			isLate: 'X',
+			minutesLate: 'Y',
 
 			// Trouble related
-			troubleNotes: 'Y',
-			troubleResolved: 'Z',
+			troubleNotes: 'Z',
+			troubleResolved: 'AA',
 
 			// Damage/repair related
-			damageReported: 'AA',
-			repairRequired: 'AB',
-			replacementRequired: 'AC',
+			damageReported: 'AB',
+			repairRequired: 'AC',
+			replacementRequired: 'AD',
 
 			// Service-specific details
-			bikeCount: 'AD',
-			bikeNumber: 'AE',
-			onsenKeyNumber: 'AF',
-			luggageCount: 'AG',
-			luggageTagNumber: 'AH',
+			bikeCount: 'AE',
+			bikeNumber: 'AF',
+			onsenKeyNumber: 'AG',
+			luggageCount: 'AH',
+			luggageTagNumber: 'AI',
+
+			// Gender/age breakdown
+			maleCount: 'AJ',
+			femaleCount: 'AK',
+			totalAdultCount: 'AL',
+			boyCount: 'AM',
+			girlCount: 'AN',
+			totalChildCount: 'AO',
+			kidsCount: 'AP',
 
 			// Additional details
-			companion: 'AI',
-			totalAdultCount: 'AJ',
-			totalChildCount: 'AK',
-			faceTowelCount: 'AL',
-			bathTowelCount: 'AM',
-			discountApplied: 'AN',
-			partnerHotel: 'AO',
-			createdBy: 'AP'
+			faceTowelCount: 'AQ',
+			bathTowelCount: 'AR',
+			discountApplied: 'AS',
+			partnerHotel: 'AT',
+			createdBy: 'AU'
 		};
 
 		// Apply updates

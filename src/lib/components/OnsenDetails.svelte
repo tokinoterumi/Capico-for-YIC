@@ -7,7 +7,6 @@
 	let customerName = data.customerName || '';
 	let customerContact = data.customerContact || '';
 	let documentType = data.documentType || '';
-	let companion = data.companion || '';
 	let adultMaleCount = data.adultMaleCount || 1;
 	let adultFemaleCount = data.adultFemaleCount || 0;
 	let childMaleCount = data.childMaleCount || 0;
@@ -171,7 +170,6 @@
 					customerName: customerName.trim(),
 					customerContact: customerContact.trim(),
 					documentType,
-					companion: companion.trim(),
 					origin,
 					prefecture,
 					comeFrom,
@@ -259,12 +257,6 @@
 					<option value={doc.value}>{doc.label}</option>
 				{/each}
 			</select>
-		</div>
-
-		<!-- Companion -->
-		<div class="form-group">
-			<label for="companion" class="form-label"> 同行者<br />Companion </label>
-			<input id="companion" type="text" bind:value={companion} class="form-input" />
 		</div>
 
 		<!-- Origin -->
@@ -459,8 +451,9 @@
 				<ul class="text-cyan-800 space-y-1">
 					<li>
 						共同浴場の鍵は、手形をご購入された当日のみ貸出・返却が可能です。<br
-						/>なお、手形に含まれた楓の湯入浴券は有効期限はありません。お好きな時間にご利用ください。<br
-						/>清掃中の浴場はご利用できません。<br />全ての鍵は17:30までに返却してください。
+						/>なお、手形に含まれた楓の湯入浴券は有効期限はありません。楓の湯窓口に手形をご提示ください。<br
+						/>共同浴場は、清掃によりご利用できない時間帯がございます。<br
+						/>共同浴場の鍵は17:30までにご返却ください。
 					</li>
 					<li>
 						Please note that keys for the public bathhouses must be borrowed and returned on the day

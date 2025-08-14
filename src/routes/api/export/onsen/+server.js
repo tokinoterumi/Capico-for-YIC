@@ -35,15 +35,14 @@ const COLUMN_MAPPING = {
 	customerContact: '連絡先',
 	totalPrice: '料金',
 	discountApplied: '割引適用',
-	unavailableBaths: '利用不可浴場',
-	companion: '同行者',
 	comeFrom: 'お住まい',
 	totalAdultCount: '大人',
 	totalChildCount: '小人',
-	adultMaleCount: '男性',
-	adultFemaleCount: '女性',
-	childMaleCount: '男の子',
-	childFemaleCount: '女の子',
+	maleCount: '男性',
+	femaleCount: '女性',
+	boyCount: '男の子',
+	girlCount: '女の子',
+	kidsCount: '未就学児',
 	faceTowelCount: 'フェイスタオル',
 	bathTowelCount: 'バスタオル',
 	checkInStaff: '担当',
@@ -57,15 +56,14 @@ const EXPORT_FIELDS = [
 	'customerContact',
 	'totalPrice',
 	'discountApplied',
-	'unavailableBaths',
-	'companion',
 	'comeFrom',
 	'totalAdultCount',
 	'totalChildCount',
-	'adultMaleCount',
-	'adultFemaleCount',
-	'childMaleCount',
-	'childFemaleCount',
+	'maleCount',
+	'femaleCount',
+	'boyCount',
+	'girlCount',
+	'kidsCount',
 	'faceTowelCount',
 	'bathTowelCount',
 	'checkInStaff',
@@ -84,7 +82,7 @@ export async function GET({ url }) {
 		// Get all rental data
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AR'
+			range: 'Rentals!A:AU'
 		});
 
 		const rows = response.data.values || [];

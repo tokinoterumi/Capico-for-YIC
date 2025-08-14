@@ -6,7 +6,6 @@
 	let customerName = data.customerName || '';
 	let customerContact = data.customerContact || '';
 	let documentType = data.documentType || '';
-	let companion = data.companion || '';
 	let bikeCount = data.bikeCount || 1;
 	let rentalPlan = data.rentalPlan || '';
 
@@ -36,7 +35,6 @@
 					customerName: customerName.trim(),
 					customerContact: customerContact.trim(),
 					documentType,
-					companion: companion.trim(),
 					bikeCount,
 					rentalPlan,
 					totalPrice
@@ -86,11 +84,6 @@
 			</select>
 		</div>
 
-		<!-- Companion -->
-		<div class="form-group">
-			<label for="companion" class="form-label"> 同行者<br />Companion </label>
-			<input id="companion" type="text" bind:value={companion} class="form-input" />
-		</div>
 
 		<!-- Bike Count -->
 		<div class="form-group">

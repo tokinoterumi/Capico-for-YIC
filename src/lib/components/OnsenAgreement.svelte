@@ -312,8 +312,9 @@
 				<h4 class="font-semibold text-blue-900 mb-1">Important Information</h4>
 				<ul class="text-blue-800 space-y-1">
 					<li>
-						鍵は17:30までに必ず返却してください。<br />7歳以上は男女別浴が必要です。<br
-						/>入浴前にかけ湯をお願いします。<br />撮影は禁止されています。
+						鍵は17:30までに必ず返却してください。<br
+						/>7歳以上のお子さんは混浴が出来ません。男子は男湯に女子は女湯のご利用をお願いいたします。<br
+						/>マナーを守って気持ちよく大切に使いましょう。
 					</li>
 					<li>
 						Keys must be returned by 17:30.<br />Exceeding registered number of users incurs ¥30,000
