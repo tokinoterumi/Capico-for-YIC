@@ -15,6 +15,7 @@
 	let faceTowelCount = data.faceTowelCount || 0;
 	let bathTowelCount = data.bathTowelCount || 0;
 	let origin = data.origin || '';
+	let ageRange = data.ageRange || '';
 	let prefecture = data.prefecture || '';
 
 	const documentTypes = [
@@ -28,6 +29,16 @@
 	const originOptions = [
 		{ value: '日本国内', label: '日本国内 / Japan' },
 		{ value: '海外', label: '海外 / Overseas' }
+	];
+
+	const ageRangeOptions = [
+		{ value: '〜19', label: '〜19' },
+		{ value: '20〜29', label: '20〜29' },
+		{ value: '30〜39', label: '30〜39' },
+		{ value: '40〜49', label: '40〜49' },
+		{ value: '50〜59', label: '50〜59' },
+		{ value: '60〜69', label: '60〜69' },
+		{ value: '70〜', label: '70〜' }
 	];
 
 	const prefectures = [
@@ -214,6 +225,7 @@
 					customerName: customerName.trim(),
 					customerContact: customerContact.trim(),
 					documentType,
+					ageRange,
 					origin,
 					prefecture,
 					comeFrom,
@@ -318,6 +330,19 @@
 			</select>
 		</div>
 
+		<!-- Age Range -->
+		<div class="form-group">
+			<label for="ageRange" class="form-label">
+				年代<br />Age Range
+			</label>
+			<select id="ageRange" bind:value={ageRange} class="form-select">
+				<option value="">選択してください / Please select</option>
+				{#each ageRangeOptions as option}
+					<option value={option.value}>{option.label}</option>
+				{/each}
+			</select>
+		</div>
+
 		<!-- Origin -->
 		<div class="form-group">
 			<label for="origin" class="form-label">
@@ -343,6 +368,31 @@
 				</select>
 			</div>
 		{/if}
+	</div>
+
+	<!-- Optional Fields Notice -->
+	<div>
+		<div class="flex items-start">
+			<div class="text-cyan-800 mr-3 mt-0.5">
+				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+					<path
+						d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4V5h12v10z"
+					/>
+					<path d="M6 7h8v1H6V7zm0 2h8v1H6V9zm0 2h6v1H6v-1z" />
+				</svg>
+			</div>
+			<div class="text-sm">
+				<h4 class="font-semibold text-cyan-900 mb-1">
+					任意項目について<br />About Optional Fields Information
+				</h4>
+				<p class="text-cyan-800">
+					今後のサービス向上のための統計分析にのみ活用させていただきます。<br
+					/>ご協力いただけますと幸いです。<br />
+					We invite you to share a few optional details above. This information helps us understand our
+					guests better and is used for statistical purposes only.
+				</p>
+			</div>
+		</div>
 	</div>
 
 	<!-- Pass Quantities -->

@@ -37,6 +37,7 @@ const COLUMN_MAPPING = {
 	unavailableBaths: '利用不可浴場',
 	companion: '同行者',
 	comeFrom: 'お住まい',
+	ageRange: '年代',
 	totalAdultCount: '大人',
 	totalChildCount: '小人',
 	adultMaleCount: '男性',
@@ -59,6 +60,7 @@ const EXPORT_FIELDS = [
 	'unavailableBaths',
 	'companion',
 	'comeFrom',
+	'ageRange',
 	'totalAdultCount',
 	'totalChildCount',
 	'adultMaleCount',
@@ -84,7 +86,7 @@ export async function GET({ url }) {
 		// Get all rental data
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AR'
+			range: 'Rentals!A:AT'
 		});
 
 		const rows = response.data.values || [];

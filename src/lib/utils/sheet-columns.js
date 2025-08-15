@@ -1,10 +1,10 @@
 /**
  * Google Sheets column mapping for Rentals sheet
  * Single source of truth for all API endpoints
- * Schema: A-AS (45 columns total)
+ * Schema: A-AT (46 columns total)
  */
 
-// Main column mapping (A-AS)
+// Main column mapping (A-AT)
 export const SHEET_COLUMNS = {
 	// Basic rental information (A-L)
 	rentalID: 'A',
@@ -14,7 +14,7 @@ export const SHEET_COLUMNS = {
 	customerName: 'E',
 	customerContact: 'F',
 	documentType: 'G',
-	comeFrom: 'H',
+
 	serviceType: 'I',
 	rentalPlan: 'J',
 	totalPrice: 'K',
@@ -60,8 +60,10 @@ export const SHEET_COLUMNS = {
 	girlCount: 'AM',
 	totalChildCount: 'AN',
 	kidsCount: 'AO',
+	ageRange: 'AT',
+	comeFrom: 'H',
 
-	// Additional items (AP-AS)
+	// Additional items (AP-AT)
 	faceTowelCount: 'AP',
 	bathTowelCount: 'AQ',
 	partnerHotel: 'AR',
@@ -108,6 +110,7 @@ export const SERVICE_COLUMN_GROUPS = {
 			'documentType',
 			'agreement',
 			'comeFrom',
+			'ageRange',
 			'onsenKeyNumber',
 			'maleCount',
 			'femaleCount',
@@ -118,6 +121,7 @@ export const SERVICE_COLUMN_GROUPS = {
 			'kidsCount',
 			'faceTowelCount',
 			'bathTowelCount',
+			'ageRange',
 			'lastUpdated'
 		],
 		Luggage: [
