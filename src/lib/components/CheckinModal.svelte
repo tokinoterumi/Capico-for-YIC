@@ -88,7 +88,9 @@
 	// Reactive pricing calculation for luggage
 	$: dynamicTotalPrice =
 		rental?.serviceType === 'Luggage'
-			? luggageTagNumbers.length * LUGGAGE_PRICE_PER_ITEM
+			? luggageTagNumbers.length > 0 
+				? luggageTagNumbers.length * LUGGAGE_PRICE_PER_ITEM
+				: rental?.totalPrice || 0
 			: rental?.totalPrice || 0;
 
 	// Helper function to get Japanese service type display name
