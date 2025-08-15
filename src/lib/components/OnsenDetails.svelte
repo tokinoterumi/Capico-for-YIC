@@ -94,9 +94,16 @@
 
 	// --- Bath Availability Check Logic ---
 
+	// Bath unavailable time periods
+	const BATH_TIMES = {
+		oyu: { start: 900, end: 1600, display: '9:00〜16:00' },
+		watanoyu: { start: 900, end: 1300, display: '9:00〜13:00' },
+		kakkenoyu: { start: 900, end: 1300, display: '9:00〜13:00' }
+	};
+
 	/**
 	 * Checks the cleaning schedule for all public baths and returns availability information.
-	 * @returns {{hasUnavailableBaths: boolean, unavailableBaths: string[]}}
+	 * @returns {{hasUnavailableBaths: boolean, unavailableBaths: string[], unavailableBathsWithTimes: Array<{name: string, time: string}>}}
 	 */
 	function getBathAvailabilityInfo() {
 		const now = new Date();
@@ -104,6 +111,7 @@
 		const month = now.getMonth() + 1; // 1-12
 		const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
 		const unavailable = [];
+		const unavailableWithTimes = [];
 
 		// Rule 1: Ōyu (大湯)
 		const oyuCleaningDates = [3, 11, 18, 27];
@@ -115,8 +123,13 @@
 		const isOyuCleaningDay =
 			oyuCleaningDates.includes(today) ||
 			oyuSpecialDates.some((d) => d.month === month && d.day === today);
-		if (isOyuCleaningDay && currentTime >= 900 && currentTime < 1600) {
+		if (
+			isOyuCleaningDay &&
+			currentTime >= BATH_TIMES.oyu.start &&
+			currentTime < BATH_TIMES.oyu.end
+		) {
 			unavailable.push('大湯（Ōyu）');
+			unavailableWithTimes.push({ name: '大湯（Ōyu）', time: BATH_TIMES.oyu.display });
 		}
 
 		// Rule 2: Wata-no-yu (綿の湯)
@@ -128,18 +141,45 @@
 			anchorDate.getUTCDate()
 		);
 		const daysSinceAnchor = Math.floor((todayUTC - anchorUTC) / (1000 * 60 * 60 * 24));
-		if (daysSinceAnchor % 2 === 0 && currentTime >= 1000 && currentTime < 1300) {
-			unavailable.push('綿の湯（Wata no Yu）');
-		}
+		const isWatanoyuUnavailable =
+			daysSinceAnchor % 2 === 0 &&
+			currentTime >= BATH_TIMES.watanoyu.start &&
+			currentTime < BATH_TIMES.watanoyu.end;
 
 		// Rule 3: Kakke-no-yu (脚気の湯)
-		if (today % 2 === 0 && currentTime >= 1000 && currentTime < 1300) {
-			unavailable.push('脚気の湯（Kakke no Yu）');
+		const isKakkenoyuUnavailable =
+			today % 2 === 0 &&
+			currentTime >= BATH_TIMES.kakkenoyu.start &&
+			currentTime < BATH_TIMES.kakkenoyu.end;
+
+		// Combine watanoyu and kakkenoyu if both are unavailable (same time)
+		if (isWatanoyuUnavailable && isKakkenoyuUnavailable) {
+			unavailable.push('綿の湯（Wata no Yu）、脚気の湯（Kakke no Yu）');
+			unavailableWithTimes.push({
+				name: '綿の湯（Wata no Yu）、脚気の湯（Kakke no Yu）',
+				time: BATH_TIMES.watanoyu.display
+			});
+		} else {
+			if (isWatanoyuUnavailable) {
+				unavailable.push('綿の湯（Wata no Yu）');
+				unavailableWithTimes.push({
+					name: '綿の湯（Wata no Yu）',
+					time: BATH_TIMES.watanoyu.display
+				});
+			}
+			if (isKakkenoyuUnavailable) {
+				unavailable.push('脚気の湯（Kakke no Yu）');
+				unavailableWithTimes.push({
+					name: '脚気の湯（Kakke no Yu）',
+					time: BATH_TIMES.kakkenoyu.display
+				});
+			}
 		}
 
 		return {
 			hasUnavailableBaths: unavailable.length > 0,
-			unavailableBaths: unavailable
+			unavailableBaths: unavailable,
+			unavailableBathsWithTimes: unavailableWithTimes
 		};
 	}
 
@@ -147,6 +187,7 @@
 	$: bathAvailabilityInfo = getBathAvailabilityInfo();
 	$: hasUnavailableBaths = bathAvailabilityInfo.hasUnavailableBaths;
 	$: unavailableBathsList = bathAvailabilityInfo.unavailableBaths.join('、');
+	$: unavailableBathsWithTimes = bathAvailabilityInfo.unavailableBathsWithTimes;
 
 	$: totalAdultCount = adultMaleCount + adultFemaleCount;
 	$: totalChildCount = childMaleCount + childFemaleCount;
@@ -203,9 +244,9 @@
 
 	<!-- Warning Notice for Unavailable Baths -->
 	{#if hasUnavailableBaths}
-		<div class="rounded-lg p-4 bg-yellow-50 border border-yellow-200">
+		<div>
 			<div class="flex items-start">
-				<div class="text-yellow-800 mr-3 mt-0.5">
+				<div class="text-orange-700 mr-3 mt-0.5">
 					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 						<path
 							fill-rule="evenodd"
@@ -215,13 +256,28 @@
 					</svg>
 				</div>
 				<div class="text-sm">
-					<h4 class="font-semibold text-yellow-900 mb-1">
-						⚠️ 一部浴場利用不可<br />Some Baths Unavailable
+					<h4 class="font-semibold text-orange-700 mb-1">
+						清掃により、ご利用いただけない時間帯がございます<br />Baths unavailable during following
+						scheduled cleaning periods
 					</h4>
-					<p class="text-yellow-800">
-						{unavailableBathsList} が清掃中のため、現在ご利用いただけません。<br />
-						{unavailableBathsList} is/are currently unavailable due to maintenance.
-					</p>
+					<div class="text-orange-700">
+						{#if unavailableBathsWithTimes.length === 1}
+							<p>
+								今日は{unavailableBathsWithTimes[0].name} の湯払い日のため、{unavailableBathsWithTimes[0]
+									.time}の間ご利用いただけません。<br />
+								{unavailableBathsWithTimes[0].name} is unavailable due to maintenance from {unavailableBathsWithTimes[0]
+									.time}.
+							</p>
+						{:else if unavailableBathsWithTimes.length > 1}
+							<p>
+								今日は湯払い日のため、{#each unavailableBathsWithTimes as bath, index}{bath.name}は{bath.time}の間{#if index < unavailableBathsWithTimes.length - 1}、{/if}{/each}ご利用いただけません。<br
+								/>
+								Today is maintenance day: {#each unavailableBathsWithTimes as bath, index}{bath.name}
+									is unavailable from {bath.time}{#if index < unavailableBathsWithTimes.length - 1},
+									{/if}{/each}.
+							</p>
+						{/if}
+					</div>
 				</div>
 			</div>
 		</div>

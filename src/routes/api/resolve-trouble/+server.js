@@ -98,7 +98,7 @@ export async function POST({ request }) {
 
 		// Prepare data for Google Sheets update
 		const updates = {
-			status: 'Active', // Return to Active status after resolving trouble
+			status: 'Closed', // Change to Closed status after resolving trouble
 			troubleResolved: 'TRUE',
 			lastUpdated: new Date().toISOString()
 		};
@@ -144,7 +144,7 @@ export async function POST({ request }) {
 			message: 'Trouble resolved successfully',
 			resolution: {
 				previousStatus: 'Troubled',
-				newStatus: 'Active',
+				newStatus: 'Closed',
 				resolvedAt: updates.troubleResolvedAt,
 				customerName: currentRental.customerName,
 				serviceType: currentRental.serviceType,
@@ -155,9 +155,10 @@ export async function POST({ request }) {
 					'Customer registration',
 					'Service activation',
 					'Trouble reporting',
-					'Trouble resolution'
+					'Trouble resolution',
+					'Service completion'
 				],
-				remaining: ['Service completion', 'Return/pickup processing']
+				remaining: []
 			},
 			timestamp: new Date().toISOString()
 		});
@@ -221,19 +222,19 @@ export async function GET() {
 			message: 'This endpoint only accepts POST requests',
 			usage: {
 				method: 'POST',
-				description: 'Resolve trouble status and return rental to Active status',
+				description: 'Resolve trouble status and close rental',
 				requiredFields: [
 					'rentalID (troubled rental ID)'
 				],
 				optionalFields: [
 					'notes (resolution notes)'
 				],
-				statusTransition: 'Troubled → Active',
+				statusTransition: 'Troubled → Closed',
 				workflow: {
 					step1: 'Rental becomes troubled due to issues',
 					step2: 'Staff investigates and resolves the problem',
-					step3: 'This endpoint moves status back to Active',
-					step4: 'Customer can continue using the service'
+					step3: 'This endpoint closes the rental as resolved',
+					step4: 'Rental is marked as completed'
 				}
 			}
 		},

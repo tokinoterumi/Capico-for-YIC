@@ -76,7 +76,7 @@
 							<li>
 								（4）利用後は、営業時間内（17:30まで）に必ず鍵を山ノ内インフォメーションセンターにご返却ください。17:30を過ぎても返却がない場合は電話連絡を行う場合がございます。
 							</li>
-							<li>
+							<li class="text-red-600">
 								（5）申請人数以上の利用や鍵の未返却及び紛失した場合には金3万円をいただきます。
 							</li>
 						</ol>
@@ -199,7 +199,7 @@
 								(4) Keys are to be returned to the Yamanouchi Information Center no later than
 								17:30PM. If not returned by 17:30PM we may contact you by phone.
 							</li>
-							<li>
+							<li class="text-red-600">
 								(5) 30,000 yen will be charged in the event of use of this service by those other
 								than designated applicants, or of failure to return keys.
 							</li>

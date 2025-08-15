@@ -615,7 +615,10 @@
 	<!-- Actions Bar -->
 	<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
 		<div class="flex items-center gap-4">
-			<QueueFilter on:filterChange={handleFilterChange} />
+			<QueueFilter 
+				selectedServiceType={activeFilters.serviceType} 
+				on:filterChange={handleFilterChange} 
+			/>
 
 			{#if hasActiveFilters}
 				<button on:click={clearAllFilters} class="btn-secondary text-sm px-3 py-2">
@@ -811,9 +814,7 @@
 						: '現在表示できるサービスがありません'}
 				</p>
 				{#if hasActiveFilters}
-					<button on:click={clearAllFilters} class="btn-secondary mr-2">
-						フィルターをクリア
-					</button>
+					<button on:click={clearAllFilters} class="btn-secondary mr-2"> をクリア </button>
 				{/if}
 				<button on:click={showCounterRegistration} class="btn-primary"> 新規登録 </button>
 			</div>

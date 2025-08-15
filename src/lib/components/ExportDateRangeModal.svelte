@@ -9,7 +9,7 @@
 	// Set default date range to project start date and current month end
 	function setDefaultDates() {
 		const now = new Date();
-		const projectStartDate = new Date(2025, 7, 4); // August 4, 2025 (month is 0-indexed)
+		const projectStartDate = new Date(2025, 7, 5); // August 4, 2025 (month is 0-indexed)
 		const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
 		startDate = projectStartDate.toISOString().split('T')[0];

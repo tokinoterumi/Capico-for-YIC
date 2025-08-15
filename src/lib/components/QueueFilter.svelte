@@ -1,34 +1,30 @@
 <script lang="ts">
-	export let onFilterChange: ((filters: FilterData) => void) | null = null;
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+
+	// Export prop to allow parent to control the selected service type
+	export let selectedServiceType = 'all';
 
 	interface FilterData {
 		status: string;
 		serviceType: string;
 	}
 
-	let selectedServiceType = 'all';
-
 	// Available filter options
 	const serviceTypeOptions = [
 		{ value: 'all', label: 'すべて', icon: '📋' },
 		{ value: 'Bike', label: 'レンタサイクル', icon: '🚲' },
 		{ value: 'Onsen', label: '外湯めぐり', icon: '♨️' },
-		{ value: 'Luggage', label: '手荷物保管', icon: '🧳' }
+		{ value: 'Luggage', label: '荷物預かり', icon: '🧳' }
 	];
 
 	// Reactive statement to emit filter changes
 	$: {
-		if (onFilterChange) {
-			onFilterChange({
-				status: 'all', // Always 'all' since status filtering is handled by stats cards
-				serviceType: selectedServiceType
-			});
-		}
-	}
-
-
-	function clearFilters() {
-		selectedServiceType = 'all';
+		dispatch('filterChange', {
+			status: 'all', // Always 'all' since status filtering is handled by stats cards
+			serviceType: selectedServiceType
+		});
 	}
 
 	// Check if any filters are active
@@ -57,13 +53,6 @@
 			{/each}
 		</select>
 	</div>
-
-	<!-- Clear Filters Button -->
-	{#if hasActiveFilters}
-		<button on:click={clearFilters} class="text-sm text-gray-500 hover:text-gray-700 underline">
-			クリア / Clear
-		</button>
-	{/if}
 
 	<!-- Active Filter Indicators -->
 	{#if hasActiveFilters}

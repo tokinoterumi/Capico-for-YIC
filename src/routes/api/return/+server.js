@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
+import { getServiceColumnMapping } from '$lib/utils/sheet-columns.js';
 
 // --- 憑證處理 (與 rentals/+server.js 相同) ---
 let CREDENTIALS;
@@ -173,64 +174,36 @@ export async function POST({ request }) {
 			resourceReleaseData.luggagePickedUp = true;
 		}
 
-		// Prepare service-specific data for Google Sheets update
-		let updates = {};
-		let columnMap = {};
+		// Get service-specific column mapping from shared utility
+		const columnMap = getServiceColumnMapping(serviceType, 'RETURN');
 
+		// Prepare service-specific updates
+		let updates = {
+			status: finalStatus,
+			returnedAt: new Date().toISOString(),
+			lastUpdated: new Date().toISOString()
+		};
+
+		// Add service-specific fields
 		if (serviceType === 'Luggage') {
 			// Luggage-specific updates (minimal fields only)
-			updates = {
-				status: finalStatus, // 'Closed (Picked Up)'
-				returnedAt: new Date().toISOString(),
-				lastUpdated: new Date().toISOString()
-			};
-
-			// Only add returnNotes if provided
 			if (returnData.returnNotes && returnData.returnNotes.trim()) {
 				updates.returnNotes = returnData.returnNotes.trim();
 			}
-
-			// Luggage-specific column mapping
-			columnMap = {
-				status: 'B',
-				returnedAt: 'T',
-				returnNotes: 'W',
-				lastUpdated: 'D'
-			};
 		} else {
-			// Bike/Onsen updates (full fields including staff)
-			updates = {
-				status: finalStatus,
-				returnStaff: returnData.returnStaff,
-				returnedAt: new Date().toISOString(),
-				goodCondition: returnData.goodCondition ? 'TRUE' : 'FALSE',
-				isLate: isLate ? 'TRUE' : 'FALSE',
-				minutesLate: minutesLate,
-				damageReported: returnData.goodCondition ? 'FALSE' : 'TRUE',
-				repairRequired: returnData.repairRequired ? 'TRUE' : 'FALSE',
-				replacementRequired: false,
-				lastUpdated: new Date().toISOString()
-			};
+			// Bike/Onsen updates (full fields including staff and condition tracking)
+			updates.returnStaff = returnData.returnStaff;
+			updates.goodCondition = returnData.goodCondition ? 'TRUE' : 'FALSE';
+			updates.isLate = isLate ? 'TRUE' : 'FALSE';
+			updates.minutesLate = minutesLate;
+			updates.damageReported = returnData.goodCondition ? 'FALSE' : 'TRUE';
+			updates.repairRequired = returnData.repairRequired ? 'TRUE' : 'FALSE';
+			updates.replacementRequired = 'FALSE';
 
 			// Only add returnNotes if provided
 			if (returnData.returnNotes && returnData.returnNotes.trim()) {
 				updates.returnNotes = returnData.returnNotes.trim();
 			}
-
-			// Bike/Onsen column mapping
-			columnMap = {
-				status: 'B',
-				returnStaff: 'U',
-				returnedAt: 'T', 
-				goodCondition: 'V',
-				returnNotes: 'W',
-				isLate: 'X',
-				minutesLate: 'Y',
-				damageReported: 'AB',
-				repairRequired: 'AC',
-				replacementRequired: 'AD',
-				lastUpdated: 'D'
-			};
 		}
 
 		// Build batch update requests

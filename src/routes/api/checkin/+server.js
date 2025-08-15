@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
+import { getServiceColumnMapping } from '$lib/utils/sheet-columns.js';
 
 // --- Credentials handling ---
 let CREDENTIALS;
@@ -293,49 +294,76 @@ export async function POST({ request }) {
 				);
 			}
 
-			// Column mapping for updates (same as rentals endpoint)
-			const columnMap = {
-				// Basic info
-				status: 'B',
-				lastUpdated: 'D',
+			// Get service-specific column mapping from shared utility
+			const columnMap = getServiceColumnMapping(serviceType, 'CHECKIN');
 
-				// Check-in related
-				checkInStaff: 'M',
-				checkedInAt: 'N',
-				photoFileID: 'O',
-				verified: 'P',
-
-				// Service-specific details
-				bikeNumber: 'AE',
-				onsenKeyNumber: 'AF',
-				luggageTagNumber: 'AH'
-			};
-
-			// Prepare updates
-			const updates = {
+			// Prepare service-specific updates
+			let updates = {
 				status: resourceData.nextStatus,
-				checkInStaff: serviceType !== 'Luggage' ? checkinData.staffName : 'System',
 				checkedInAt: new Date().toISOString(),
-				lastUpdated: new Date().toISOString(),
-				verified: checkinData.verified ? 'TRUE' : 'FALSE'
+				lastUpdated: new Date().toISOString()
 			};
 
-			// Add photo file ID if uploaded
-			if (photoFileId) {
-				updates.photoFileID = photoFileId;
-			}
+			// Add service-specific fields
+			if (serviceType === 'Luggage') {
+				// Luggage-specific updates (minimal fields)
+				if (resourceData.luggageTagNumbers && resourceData.luggageTagNumbers.length > 0) {
+					updates.luggageTagNumber = resourceData.luggageTagNumbers.join(', ');
+					updates.luggageCount = resourceData.luggageTagNumbers.length;
+				}
+				if (checkinData.expectedReturn) {
+					updates.expectedReturn = checkinData.expectedReturn;
+				}
+				if (checkinData.partnerHotel) {
+					updates.partnerHotel = checkinData.partnerHotel;
+				}
+			} else {
+				// Bike/Onsen updates (full fields including staff and photo)
+				updates.checkInStaff = checkinData.staffName;
+				updates.verified = checkinData.verified ? 'TRUE' : 'FALSE';
+				
+				if (photoFileId) {
+					updates.photoFileID = photoFileId;
+				}
+				if (checkinData.documentType) {
+					updates.documentType = checkinData.documentType;
+				}
+				if (checkinData.agreement !== undefined) {
+					updates.agreement = checkinData.agreement ? 'TRUE' : 'FALSE';
+				}
 
-			// Add service-specific resource assignments
-			if (serviceType === 'Bike' && resourceData.bikeNumber) {
-				updates.bikeNumber = resourceData.bikeNumber;
-			} else if (serviceType === 'Onsen' && resourceData.onsenKeyNumber) {
-				updates.onsenKeyNumber = resourceData.onsenKeyNumber;
-			} else if (
-				serviceType === 'Luggage' &&
-				resourceData.luggageTagNumbers &&
-				resourceData.luggageTagNumbers.length > 0
-			) {
-				updates.luggageTagNumber = resourceData.luggageTagNumbers.join(', ');
+				// Service-specific resource assignments
+				if (serviceType === 'Bike') {
+					if (resourceData.bikeNumber) {
+						updates.bikeNumber = resourceData.bikeNumber;
+					}
+					if (checkinData.rentalPlan) {
+						updates.rentalPlan = checkinData.rentalPlan;
+					}
+					if (checkinData.expectedReturn) {
+						updates.expectedReturn = checkinData.expectedReturn;
+					}
+					if (checkinData.bikeCount) {
+						updates.bikeCount = checkinData.bikeCount;
+					}
+				} else if (serviceType === 'Onsen') {
+					if (resourceData.onsenKeyNumber) {
+						updates.onsenKeyNumber = resourceData.onsenKeyNumber;
+					}
+					if (checkinData.comeFrom) {
+						updates.comeFrom = checkinData.comeFrom;
+					}
+					// Add demographic data
+					if (checkinData.maleCount !== undefined) updates.maleCount = checkinData.maleCount;
+					if (checkinData.femaleCount !== undefined) updates.femaleCount = checkinData.femaleCount;
+					if (checkinData.totalAdultCount !== undefined) updates.totalAdultCount = checkinData.totalAdultCount;
+					if (checkinData.boyCount !== undefined) updates.boyCount = checkinData.boyCount;
+					if (checkinData.girlCount !== undefined) updates.girlCount = checkinData.girlCount;
+					if (checkinData.totalChildCount !== undefined) updates.totalChildCount = checkinData.totalChildCount;
+					if (checkinData.kidsCount !== undefined) updates.kidsCount = checkinData.kidsCount;
+					if (checkinData.faceTowelCount !== undefined) updates.faceTowelCount = checkinData.faceTowelCount;
+					if (checkinData.bathTowelCount !== undefined) updates.bathTowelCount = checkinData.bathTowelCount;
+				}
 			}
 
 			// Apply updates to Google Sheets

@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
+import { SHEET_COLUMNS } from '$lib/utils/sheet-columns.js';
 
 // --- 憑證處理 ---
 // 這是我們唯一需要在頂部處理的變數，因為它需要解碼和解析
@@ -189,7 +190,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		luggageRow[10] = data.totalPrice || 0; // K: totalPrice
 		luggageRow[11] = data.expectedReturn || ''; // L: expectedReturn
 		luggageRow[14] = checkedInAt; // O: checkedInAt
-		luggageRow[24] = data.notes || ''; // Y: troubleNotes
+		luggageRow[24] = ''; // Y: troubleNotes
 		luggageRow[32] = data.luggageCount || 0; // AG: luggageCount
 		luggageRow[33] = luggageTagNumber; // AH: luggageTagNumber
 		luggageRow[43] = partnerHotel; // AR: partnerHotel
@@ -223,7 +224,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		onsenRow[21] = ''; // V: returnNotes
 		onsenRow[22] = false; // W: isLate
 		onsenRow[23] = 0; // X: minutesLate
-		onsenRow[24] = data.notes || ''; // Y: troubleNotes
+		onsenRow[24] = ''; // Y: troubleNotes
 		onsenRow[25] = false; // Z: troubleResolved
 		onsenRow[26] = false; // AA: damageReported
 		onsenRow[27] = false; // AB: repairRequired
@@ -269,7 +270,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		bikeRow[21] = ''; // V: returnNotes
 		bikeRow[22] = false; // W: isLate
 		bikeRow[23] = 0; // X: minutesLate
-		bikeRow[24] = data.notes || ''; // Y: troubleNotes
+		bikeRow[24] = ''; // Y: troubleNotes
 		bikeRow[25] = false; // Z: troubleResolved
 		bikeRow[26] = false; // AA: damageReported
 		bikeRow[27] = false; // AB: repairRequired
@@ -577,69 +578,8 @@ export async function PUT({ request }) {
 			}
 		}
 
-		// Column mapping for updates (A-AS, 45 columns)
-		const columnMap = {
-			// Basic info
-			rentalID: 'A',
-			status: 'B',
-			submittedAt: 'C',
-			lastUpdated: 'D',
-			customerName: 'E',
-			customerContact: 'F',
-			documentType: 'G',
-			comeFrom: 'H',
-			serviceType: 'I',
-			rentalPlan: 'J',
-			totalPrice: 'K',
-			expectedReturn: 'L',
-			agreement: 'M',
-
-			// Check-in related
-			checkInStaff: 'N',
-			checkedInAt: 'O',
-			photoFileID: 'P',
-			verified: 'Q',
-
-			// Storage/Return related
-			storedAt: 'R',
-			returnedAt: 'S',
-			returnStaff: 'T',
-			goodCondition: 'U',
-			returnNotes: 'V',
-			isLate: 'W',
-			minutesLate: 'X',
-
-			// Trouble related
-			troubleNotes: 'Y',
-			troubleResolved: 'Z',
-
-			// Damage/repair related
-			damageReported: 'AA',
-			repairRequired: 'AB',
-			replacementRequired: 'AC',
-
-			// Service-specific details
-			bikeCount: 'AD',
-			bikeNumber: 'AE',
-			onsenKeyNumber: 'AF',
-			luggageCount: 'AG',
-			luggageTagNumber: 'AH',
-
-			// Gender/age breakdown
-			maleCount: 'AI',
-			femaleCount: 'AJ',
-			totalAdultCount: 'AK',
-			boyCount: 'AL',
-			girlCount: 'AM',
-			totalChildCount: 'AN',
-			kidsCount: 'AO',
-
-			// Additional details
-			faceTowelCount: 'AP',
-			bathTowelCount: 'AQ',
-			partnerHotel: 'AR',
-			createdBy: 'AS'
-		};
+		// Use shared column mapping
+		const columnMap = SHEET_COLUMNS;
 
 		// Apply updates
 		const updateRequests = [];

@@ -103,6 +103,15 @@
 	function handlePrint() {
 		window.print();
 	}
+
+	// Calculate actual luggage count from tag numbers
+	function getActualLuggageCount(luggageTagNumber: string): number {
+		if (!luggageTagNumber || luggageTagNumber.trim() === '') {
+			return 0;
+		}
+		// Split by comma and count non-empty tags
+		return luggageTagNumber.split(',').map(tag => tag.trim()).filter(tag => tag !== '').length;
+	}
 </script>
 
 <!-- Modal Backdrop -->
@@ -280,7 +289,7 @@
 								<div class="space-y-3">
 									<div class="flex justify-between">
 										<span class="text-gray-600">個数</span>
-										<span class="font-medium">{rental.luggageCount}個</span>
+										<span class="font-medium">{getActualLuggageCount(rental.luggageTagNumber)}個</span>
 									</div>
 									{#if rental.luggageTagNumber}
 										<div>
