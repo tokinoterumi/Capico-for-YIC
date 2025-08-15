@@ -82,6 +82,15 @@
 	// Auto-generate next luggage tag number
 	let nextLuggageTagNumber: number = 1;
 
+	// Pricing constants
+	const LUGGAGE_PRICE_PER_ITEM = 500;
+
+	// Reactive pricing calculation for luggage
+	$: dynamicTotalPrice =
+		rental?.serviceType === 'Luggage'
+			? luggageTagNumbers.length * LUGGAGE_PRICE_PER_ITEM
+			: rental?.totalPrice || 0;
+
 	// Helper function to get Japanese service type display name
 	function getServiceTypeDisplayName(serviceType: string): string {
 		switch (serviceType) {
@@ -598,7 +607,7 @@
 							</div>
 							<div>
 								<span class="text-gray-500">料金:</span>
-								<span class="font-medium">¥{rental.totalPrice?.toLocaleString()}</span>
+								<span class="font-medium">¥{dynamicTotalPrice.toLocaleString()}</span>
 							</div>
 						</div>
 					</div>
@@ -771,7 +780,7 @@
 						<div class="space-y-3">
 							<div class="flex flex-wrap gap-2">
 								{#each bikeNumbers as bike, index}
-									<div class="flex items-center space-x-1 bg-gray-100 rounded-md p-2">
+									<div class="flex items-center space-x-1">
 										<select
 											id={'bike-assignment-select-' + index}
 											bind:value={bikeNumbers[index]}
@@ -787,31 +796,9 @@
 												</option>
 											{/each}
 										</select>
-										{#if bikeNumbers.length > 1}
-											<button
-												type="button"
-												on:click={() => removeBike(bike)}
-												class="text-red-500 hover:text-red-700 p-1"
-												disabled={processing}
-												title="この自転車を削除"
-											>
-												<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-													<path
-														fill-rule="evenodd"
-														d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-														clip-rule="evenodd"
-													></path>
-												</svg>
-											</button>
-										{/if}
 									</div>
 								{/each}
 							</div>
-							{#if bikeNumbers.length < (rental?.bikeCount || 1)}
-								<button on:click={addBike} class="btn-secondary text-sm" disabled={processing}>
-									+ 自転車追加
-								</button>
-							{/if}
 						</div>
 					</div>
 				{:else if rental?.serviceType === 'Onsen'}
@@ -869,7 +856,7 @@
 					<div class="form-group">
 						<label class="form-label">
 							タグ番号{#if rental?.luggageCount}
-								<span class="text-sm text-gray-500">（{rental.luggageCount}個の荷物）</span>
+								<span class="text-sm text-gray-500">（{luggageTagNumbers.length}個の荷物）</span>
 							{/if}<br />Luggage Tag Numbers *
 						</label>
 						<div class="space-y-3">
@@ -883,11 +870,37 @@
 											value={tagNumber}
 											on:input={(e) =>
 												updateLuggageTag(index, (e.target as HTMLInputElement)?.value || '')}
+											on:keypress={(e) => {
+												// Only allow digits
+												if (
+													!/[0-9]/.test(e.key) &&
+													![
+														'Backspace',
+														'Delete',
+														'Tab',
+														'Enter',
+														'ArrowLeft',
+														'ArrowRight'
+													].includes(e.key)
+												) {
+													e.preventDefault();
+												}
+											}}
+											on:paste={(e) => {
+												e.preventDefault();
+												const paste = (e.clipboardData || window.clipboardData).getData('text');
+												const numericOnly = paste.replace(/\D/g, '');
+												if (numericOnly) {
+													updateLuggageTag(index, numericOnly);
+												}
+											}}
 											class="form-input flex-1"
 											disabled={processing}
 											min="1"
 											max="999"
 											step="1"
+											pattern="[0-9]*"
+											inputmode="numeric"
 											required
 										/>
 										{#if luggageTagNumbers.length > 1}
