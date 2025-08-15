@@ -290,7 +290,7 @@
 						class="btn-primary"
 						disabled={processing || !customerName.trim()}
 					>
-						{@html processing ? '保存中...' : '保存＜br/>Save'}
+						{@html processing ? '保存中...' : '保存<br/>Save'}
 					</button>
 				</div>
 			</div>
