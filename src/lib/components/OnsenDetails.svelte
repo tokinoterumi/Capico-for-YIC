@@ -7,7 +7,7 @@
 	let customerName = data.customerName || '';
 	let customerContact = data.customerContact || '';
 	let documentType = data.documentType || '';
-	let adultMaleCount = data.adultMaleCount || 1;
+	let adultMaleCount = data.adultMaleCount || 0;
 	let adultFemaleCount = data.adultFemaleCount || 0;
 	let childMaleCount = data.childMaleCount || 0;
 	let childFemaleCount = data.childFemaleCount || 0;
@@ -402,13 +402,13 @@
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 			<!-- Adult Section -->
 			<div class="space-y-3">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-base">
 					大人<br />13 YO Above
 				</h4>
 
 				<!-- Adult Male -->
 				<div class="form-group">
-					<label for="adultMaleCount" class="form-label text-sm"> 男性<br />Male </label>
+					<label for="adultMaleCount" class="form-label text-sm"> 男性　Male </label>
 					<div class="flex items-center justify-between">
 						<select id="adultMaleCount" bind:value={adultMaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
@@ -416,7 +416,7 @@
 							{/each}
 						</select>
 						<div class="ml-3 text-right w-14">
-							<div class="font-semibold text-gray-900 text-sm">
+							<div class="font-semibold text-gray-900 text-base">
 								¥{adultUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -425,7 +425,7 @@
 
 				<!-- Adult Female -->
 				<div class="form-group">
-					<label for="adultFemaleCount" class="form-label text-sm"> 女性<br />Female </label>
+					<label for="adultFemaleCount" class="form-label text-sm"> 女性　Female </label>
 					<div class="flex items-center justify-between">
 						<select id="adultFemaleCount" bind:value={adultFemaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
@@ -433,7 +433,7 @@
 							{/each}
 						</select>
 						<div class="ml-3 text-right w-14">
-							<div class="font-semibold text-gray-900 text-sm">
+							<div class="font-semibold text-gray-900 text-base">
 								¥{adultUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -443,13 +443,13 @@
 
 			<!-- Child Section -->
 			<div class="space-y-3">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-base">
 					小人<br />Child (7-12 YO)
 				</h4>
 
 				<!-- Child Male -->
 				<div class="form-group">
-					<label for="childMaleCount" class="form-label text-sm"> 男の子<br />Boy </label>
+					<label for="childMaleCount" class="form-label text-sm"> 男の子　Boy </label>
 					<div class="flex items-center justify-between">
 						<select id="childMaleCount" bind:value={childMaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
@@ -457,7 +457,7 @@
 							{/each}
 						</select>
 						<div class="ml-3 text-right w-14">
-							<div class="font-semibold text-gray-900 text-sm">
+							<div class="font-semibold text-gray-900 text-base">
 								¥{childUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -466,7 +466,7 @@
 
 				<!-- Child Female -->
 				<div class="form-group">
-					<label for="childFemaleCount" class="form-label text-sm"> 女の子<br />Girl </label>
+					<label for="childFemaleCount" class="form-label text-base"> 女の子　Girl </label>
 					<div class="flex items-center justify-between">
 						<select id="childFemaleCount" bind:value={childFemaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
@@ -474,7 +474,7 @@
 							{/each}
 						</select>
 						<div class="ml-3 text-right w-14">
-							<div class="font-semibold text-gray-900 text-sm">
+							<div class="font-semibold text-gray-900 text-base">
 								¥{childUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -484,12 +484,12 @@
 
 			<!-- Kids Section -->
 			<div class="space-y-3">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-base">
 					幼児<br />Kids (Under 7 YO)
 				</h4>
-
 				<!-- Kids Count -->
 				<div class="form-group">
+					<label for="kidsCount" class="form-label text-sm">&nbsp;</label>
 					<div class="flex items-center justify-between">
 						<select id="kidsCount" bind:value={kidsCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
@@ -497,7 +497,7 @@
 							{/each}
 						</select>
 						<div class="ml-3 text-right w-14">
-							<div class="font-semibold text-gray-900 text-sm">
+							<div class="font-semibold text-gray-900 text-base">
 								¥{KIDS_PRICE.toLocaleString()}
 							</div>
 						</div>
