@@ -381,7 +381,11 @@
 	// === REACTIVE STATEMENTS ===
 
 	// Apply filters whenever rentals or filters change (client-side only to prevent hydration mismatch)
-	$: filteredRentals = browser ? applyFilters(rentals) : [];
+	$: filteredRentals = browser
+		? applyFilters(rentals).sort(
+				(a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0)
+			)
+		: [];
 
 	// Group filtered rentals by status (client-side only)
 	$: groupedRentals = browser

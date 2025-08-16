@@ -296,9 +296,9 @@
 	</div>
 
 	<!-- Important Safety Notice -->
-	<div class="rounded-lg bg-blue-50 p-4">
+	<div class="rounded-lg p-4 border">
 		<div class="flex items-start">
-			<div class="text-blue-600 mr-3 mt-0.5">
+			<div class="text-cyan-600 mr-3 mt-0.5">
 				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 					<path
 						fill-rule="evenodd"
@@ -308,9 +308,9 @@
 				</svg>
 			</div>
 			<div class="text-sm">
-				<h4 class="font-semibold text-blue-900 mb-1">重要事項</h4>
-				<h4 class="font-semibold text-blue-900 mb-1">Important Information</h4>
-				<ul class="text-blue-800 space-y-1">
+				<h4 class="font-semibold text-cyan-900 mb-1">重要事項</h4>
+				<h4 class="font-semibold text-cyan-900 mb-1">Important Information</h4>
+				<ul class="text-cyan-800 space-y-1">
 					<li>
 						鍵は17:30までに必ず返却してください。<br
 						/>7歳以上のお子さんは混浴が出来ません。男子は男湯に女子は女湯のご利用をお願いいたします。<br

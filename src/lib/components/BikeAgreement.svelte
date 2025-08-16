@@ -255,9 +255,9 @@
 	</div>
 
 	<!-- Important Safety Notice -->
-	<div class="rounded-lg p-4 border border-red-800">
+	<div class="rounded-lg p-4 border border-orange-800">
 		<div class="flex items-start">
-			<div class="text-red-800 mr-3 mt-0.5">
+			<div class="text-orange-800 mr-3 mt-0.5">
 				<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 					<path
 						fill-rule="evenodd"
@@ -267,18 +267,20 @@
 				</svg>
 			</div>
 			<div class="text-sm">
-				<h4 class="font-semibold text-red-800 mb-1">
+				<h4 class="font-semibold text-orange-900 mb-1">
 					安全に関する重要事項<br />Important Safety Information
 				</h4>
-				<ul class="text-red-700 space-y-1">
+				<ul class="text-orange-800 space-y-1">
 					<li>
 						身長150cm未満の方はご利用いただけません。<br
-						/>ヘルメットの着用のご協力お願いいたします。<br
-						/>交通ルールを守って安全運転してください。<br />事故や故障の際は速やかにご連絡ください。
-					</li>
+						/>安全のため、ヘルメットを必ずご着用ください。<br
+						/>交通ルールを遵守し、常に安全な運転を心がけてください。
 
-					Height restriction: 150cm minimum. Wear helmet.Follow traffic rules and ride
-					safely.Contact us immediately in case of accident or breakdown
+						<br />万が一、事故や故障が発生した場合は、速やかにご連絡ください。
+					</li>
+					Riders must be at least 150cm (4'11") tall.<br />For your safety, a helmet must be worn at
+					all times.<br />Follow traffic rules and ride safely.<br />In the event of an accident or
+					breakdown, contact us immediately.
 				</ul>
 			</div>
 		</div>

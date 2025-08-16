@@ -399,24 +399,24 @@
 	<div class="rounded-lg bg-gray-50 p-6">
 		<h3 class="text-lg font-semibold text-gray-900 mb-4">枚数<br />Quantities</h3>
 
-		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+		<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 			<!-- Adult Section -->
-			<div class="space-y-4">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-2">
-					大人 <br />13 YO Above
+			<div class="space-y-3">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
+					大人<br />13 YO Above
 				</h4>
 
 				<!-- Adult Male -->
 				<div class="form-group">
-					<label for="adultMaleCount" class="form-label"> 男性<br />Male </label>
+					<label for="adultMaleCount" class="form-label text-sm"> 男性<br />Male </label>
 					<div class="flex items-center justify-between">
 						<select id="adultMaleCount" bind:value={adultMaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
 								<option value={i}>{i}</option>
 							{/each}
 						</select>
-						<div class="ml-4 text-right">
-							<div class="font-semibold text-gray-900">
+						<div class="ml-3 text-right w-14">
+							<div class="font-semibold text-gray-900 text-sm">
 								¥{adultUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -425,15 +425,15 @@
 
 				<!-- Adult Female -->
 				<div class="form-group">
-					<label for="adultFemaleCount" class="form-label"> 女性<br />Female </label>
+					<label for="adultFemaleCount" class="form-label text-sm"> 女性<br />Female </label>
 					<div class="flex items-center justify-between">
 						<select id="adultFemaleCount" bind:value={adultFemaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
 								<option value={i}>{i}</option>
 							{/each}
 						</select>
-						<div class="ml-4 text-right">
-							<div class="font-semibold text-gray-900">
+						<div class="ml-3 text-right w-14">
+							<div class="font-semibold text-gray-900 text-sm">
 								¥{adultUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -442,22 +442,22 @@
 			</div>
 
 			<!-- Child Section -->
-			<div class="space-y-4">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-2">
+			<div class="space-y-3">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
 					小人<br />Child (7-12 YO)
 				</h4>
 
 				<!-- Child Male -->
 				<div class="form-group">
-					<label for="childMaleCount" class="form-label"> 男の子<br />Boy </label>
+					<label for="childMaleCount" class="form-label text-sm"> 男の子<br />Boy </label>
 					<div class="flex items-center justify-between">
 						<select id="childMaleCount" bind:value={childMaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
 								<option value={i}>{i}</option>
 							{/each}
 						</select>
-						<div class="ml-4 text-right">
-							<div class="font-semibold text-gray-900">
+						<div class="ml-3 text-right w-14">
+							<div class="font-semibold text-gray-900 text-sm">
 								¥{childUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -466,15 +466,15 @@
 
 				<!-- Child Female -->
 				<div class="form-group">
-					<label for="childFemaleCount" class="form-label"> 女の子<br />Girl </label>
+					<label for="childFemaleCount" class="form-label text-sm"> 女の子<br />Girl </label>
 					<div class="flex items-center justify-between">
 						<select id="childFemaleCount" bind:value={childFemaleCount} class="form-select flex-1">
 							{#each Array(10) as _, i}
 								<option value={i}>{i}</option>
 							{/each}
 						</select>
-						<div class="ml-4 text-right">
-							<div class="font-semibold text-gray-900">
+						<div class="ml-3 text-right w-14">
+							<div class="font-semibold text-gray-900 text-sm">
 								¥{childUnitPrice.toLocaleString()}
 							</div>
 						</div>
@@ -483,8 +483,8 @@
 			</div>
 
 			<!-- Kids Section -->
-			<div class="space-y-4 col-span-full lg:col-span-1 lg:max-w-md">
-				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-2">
+			<div class="space-y-3">
+				<h4 class="font-medium text-gray-800 border-b border-gray-300 pb-1 text-sm">
 					幼児<br />Kids (Under 7 YO)
 				</h4>
 
@@ -496,8 +496,8 @@
 								<option value={i}>{i}</option>
 							{/each}
 						</select>
-						<div class="ml-4 text-right">
-							<div class="font-semibold text-gray-900">
+						<div class="ml-3 text-right w-14">
+							<div class="font-semibold text-gray-900 text-sm">
 								¥{KIDS_PRICE.toLocaleString()}
 							</div>
 						</div>
