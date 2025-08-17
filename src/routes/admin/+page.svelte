@@ -45,7 +45,6 @@
 	let stats = {
 		pending: 0,
 		active: 0,
-		awaitingStorage: 0,
 		troubled: 0,
 		todayTotal: {
 			total: 0,
@@ -113,7 +112,6 @@
 		stats = {
 			pending: rentals.filter((r) => r.status === 'Pending').length,
 			active: rentals.filter((r) => r.status === 'Active').length,
-			awaitingStorage: rentals.filter((r) => r.status === 'Awaiting_Storage').length,
 			troubled: rentals.filter((r) => r.status === 'Troubled').length,
 			todayTotal: {
 				total: todayRentals.length,
@@ -154,8 +152,6 @@
 				switch (activeFilters.statsFilter) {
 					case 'pending':
 						return rental.status === 'Pending';
-					case 'awaitingStorage':
-						return rental.status === 'Awaiting_Storage';
 					case 'active':
 						return rental.status === 'Active';
 					case 'troubled':
@@ -244,6 +240,7 @@
 	function handleMoveToActive(rental) {
 		processMoveToActive(rental);
 	}
+
 
 	// === QUICK ACTIONS ===
 	function showCounterRegistration() {
@@ -505,20 +502,6 @@
 			<div class="text-sm text-gray-600">保留中</div>
 		</div>
 
-		<!-- Awaiting Storage Card -->
-		<div
-			class="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all duration-200 {activeFilters.statsFilter ===
-			'awaitingStorage'
-				? 'ring-2 ring-indigo-400 bg-indigo-50'
-				: ''}"
-			on:click={() => handleStatsCardClick('awaitingStorage')}
-			role="button"
-			tabindex="0"
-			on:keydown={(e) => e.key === 'Enter' && handleStatsCardClick('awaitingStorage')}
-		>
-			<div class="text-2xl font-bold text-indigo-600">{stats.awaitingStorage}</div>
-			<div class="text-sm text-gray-600">保管待ち</div>
-		</div>
 
 		<!-- Active Card -->
 		<div
