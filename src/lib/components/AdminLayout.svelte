@@ -4,11 +4,10 @@
 	import AwaitingStorageWidget from '$lib/components/AwaitingStorageWidget.svelte';
 	import StaffWidget from '$lib/components/StaffWidget.svelte';
 
-	export let title = 'YIC 管理パネル';
+	export let title = '管理パネル - Capico for YIC';
 	export let showAwaitingWidget = true;
 	export let session;
 
-	// Widget reference
 	let awaitingStorageWidget;
 
 	// Expose refresh function to parent components
@@ -222,10 +221,7 @@
 				© 2025 Yamanouchi Information Center. Created by Terumi Tokino. All rights reserved.
 			</div>
 			<div class="flex items-center space-x-4">
-				<span>Version 4.1</span>
-				<span>
-					Last Update {new Date().toLocaleDateString('ja-JP')}
-				</span>
+				<span>Version 4.3</span>
 			</div>
 		</div>
 	</footer>
