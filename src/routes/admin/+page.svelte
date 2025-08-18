@@ -556,7 +556,7 @@
 				<div class="flex justify-between items-center text-xs">
 					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🧳</span>
-						<span class="truncate">荷物</span>
+						<span class="truncate">お荷物</span>
 					</span>
 					<span class="font-medium text-gray-700 flex-shrink-0">{stats.todayTotal.luggage}</span>
 				</div>
@@ -574,7 +574,7 @@
 				<div class="flex justify-between items-center text-xs">
 					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🚲</span>
-						レンタサイクル
+						サイクル
 					</span>
 					<span class="font-medium text-gray-700 flex-shrink-0">¥{stats.todayRevenue.bike.toLocaleString()}</span>
 				</div>
@@ -589,7 +589,7 @@
 				<div class="flex justify-between items-center text-xs">
 					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🧳</span>
-						荷物お預かり
+						お荷物
 					</span>
 					<span class="font-medium text-gray-700"
 						>¥{stats.todayRevenue.luggage.toLocaleString()}</span
