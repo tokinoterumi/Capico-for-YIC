@@ -486,7 +486,7 @@
 
 <AdminLayout bind:this={adminLayout} title="管理パネル　Admin Panel" session={data.session}>
 	<!-- Stats Overview -->
-	<div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6 mb-6">
+	<div class="grid grid-cols-2 gap-4 md:grid-cols-5 lg:grid-cols-5 mb-6">
 		<!-- Pending Card -->
 		<div
 			class="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-md hover:border-amber-300 transition-all duration-200 {activeFilters.statsFilter ===
@@ -534,37 +534,37 @@
 		</div>
 
 		<!-- Today Total Card (Non-clickable with breakdown) -->
-		<div class="rounded-lg border-gray-200 p-4">
+		<div class="p-4">
 			<div class="text-2xl font-bold text-blue-600">{stats.todayTotal.total}</div>
 			<div class="text-sm text-gray-600 mb-3">今日の件数</div>
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🚲</span>
-						レンタサイクル
+						<span class="truncate">サイクル</span>
 					</span>
-					<span class="font-medium text-gray-700">{stats.todayTotal.bike}</span>
+					<span class="font-medium text-gray-700 flex-shrink-0">{stats.todayTotal.bike}</span>
 				</div>
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">♨️</span>
 						手形
 					</span>
-					<span class="font-medium text-gray-700">{stats.todayTotal.onsen}</span>
+					<span class="font-medium text-gray-700 flex-shrink-0">{stats.todayTotal.onsen}</span>
 				</div>
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🧳</span>
-						荷物お預かり
+						<span class="truncate">荷物</span>
 					</span>
-					<span class="font-medium text-gray-700">{stats.todayTotal.luggage}</span>
+					<span class="font-medium text-gray-700 flex-shrink-0">{stats.todayTotal.luggage}</span>
 				</div>
 			</div>
 		</div>
 
 		<!-- Today Revenue Card (Non-clickable with breakdown) -->
-		<div class="rounded-lg border-gray-200 p-4">
+		<div class="p-4">
 			<div class="text-2xl font-bold text-purple-600">
 				¥{stats.todayRevenue.total.toLocaleString()}
 			</div>
@@ -572,22 +572,22 @@
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🚲</span>
 						レンタサイクル
 					</span>
-					<span class="font-medium text-gray-700">¥{stats.todayRevenue.bike.toLocaleString()}</span>
+					<span class="font-medium text-gray-700 flex-shrink-0">¥{stats.todayRevenue.bike.toLocaleString()}</span>
 				</div>
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">♨️</span>
 						手形
 					</span>
-					<span class="font-medium text-gray-700">¥{stats.todayRevenue.onsen.toLocaleString()}</span
+					<span class="font-medium text-gray-700 flex-shrink-0">¥{stats.todayRevenue.onsen.toLocaleString()}</span
 					>
 				</div>
 				<div class="flex justify-between items-center text-xs">
-					<span class="text-gray-500 flex items-center">
+					<span class="text-gray-500 flex items-center flex-shrink-0">
 						<span class="text-sm mr-1">🧳</span>
 						荷物お預かり
 					</span>
@@ -688,7 +688,7 @@
 					<div class="w-3 h-3 bg-amber-400 rounded-full mr-3"></div>
 					保留中<br />Pending ({groupedRentals.pending.length})
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each groupedRentals.pending as rental (rental.rentalID)}
 						<RentalCard
 							{rental}
@@ -709,7 +709,7 @@
 					<div class="w-3 h-3 bg-indigo-400 rounded-full mr-3"></div>
 					保管待ち<br />Awaiting Storage ({groupedRentals.awaitingStorage.length})
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each groupedRentals.awaitingStorage as rental (rental.rentalID)}
 						<RentalCard
 							{rental}
@@ -729,7 +729,7 @@
 					<div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
 					アクティブ<br />Active ({groupedRentals.active.length})
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each groupedRentals.active as rental (rental.rentalID)}
 						<RentalCard
 							{rental}
@@ -749,7 +749,7 @@
 					<div class="w-3 h-3 bg-red-400 rounded-full mr-3"></div>
 					トラブル<br />Troubled ({groupedRentals.troubled.length})
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each groupedRentals.troubled as rental (rental.rentalID)}
 						<RentalCard
 							{rental}
@@ -769,7 +769,7 @@
 					<div class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
 					完了<br />Closed ({groupedRentals.closed.length})
 				</h2>
-				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each groupedRentals.closed as rental (rental.rentalID)}
 						<RentalCard
 							{rental}
