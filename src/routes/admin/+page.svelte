@@ -136,7 +136,15 @@
 
 	// === FILTERING LOGIC ===
 	function applyFilters(rentalsToFilter = rentals) {
+		const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+		
 		return rentalsToFilter.filter((rental) => {
+			// Filter out closed rentals older than 3 days
+			if ((rental.status === 'Closed' || rental.status === 'Closed (Picked Up)' || rental.status === 'Completed') 
+				&& rental.returnedAt && new Date(rental.returnedAt) < threeDaysAgo) {
+				return false;
+			}
+
 			// Status filter (from QueueFilter component)
 			if (activeFilters.status !== 'all' && rental.status !== activeFilters.status) {
 				return false;
