@@ -23,7 +23,7 @@
 	let bathTowelCount = 0;
 	let documentType = '';
 	let companion = '';
-	let expectedReturnTime = '';
+	let expectedReturn = '';
 
 	let totalPrice = 0;
 	let paymentReceived = false;
@@ -153,10 +153,10 @@
 	}
 
 	// --- Validate expected return time for luggage ---
-	$: isExpectedReturnTimeValid = (() => {
-		if (serviceType !== 'Luggage' || !expectedReturnTime) return true; // Not required, so valid if empty
+	$: isExpectedReturnValid = (() => {
+		if (serviceType !== 'Luggage' || !expectedReturn) return true; // Not required, so valid if empty
 
-		const [hours, minutes] = expectedReturnTime.split(':').map(Number);
+		const [hours, minutes] = expectedReturn.split(':').map(Number);
 		const selectedTime = hours * 100 + minutes; // Convert to HHMM format
 
 		// Must be within business hours (9:00-18:00)
@@ -179,7 +179,7 @@
 		serviceType &&
 		(serviceType !== 'Bike' || rentalPlan) &&
 		(serviceType !== 'Onsen' || (documentType && (totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0))) &&
-		isExpectedReturnTimeValid;
+		isExpectedReturnValid;
 
 	// --- 當 Modal 打開時重設表單 (這部分保持不變) ---
 	$: if (show) {
@@ -202,7 +202,7 @@
 		bathTowelCount = 0;
 		documentType = '';
 		companion = '';
-		expectedReturnTime = '';
+		expectedReturn = '';
 		totalPrice = 0;
 		paymentReceived = false;
 		processing = false;
@@ -234,7 +234,7 @@
 				}),
 				...(serviceType === 'Luggage' && {
 					luggageCount: luggageCount,
-					expectedReturnTime: expectedReturnTime
+					expectedReturn: expectedReturn
 				}),
 				...(serviceType === 'Onsen' && {
 					documentType: documentType,
@@ -298,6 +298,14 @@
 	function calculateExpectedReturn(): string {
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		
+		// If user provided expectedReturn as time string, use it (convert to full datetime)
+		if (expectedReturn && expectedReturn.includes(':') && !expectedReturn.includes('T')) {
+			const [hours, minutes] = expectedReturn.split(':').map(Number);
+			const userTime = new Date(today);
+			userTime.setHours(hours, minutes, 0, 0);
+			return userTime.toISOString();
+		}
 		
 		// Set to 6:00 PM (18:00) today as default
 		const todaySixPM = new Date(today);
@@ -476,19 +484,19 @@
 
 						<!-- Expected Return Time -->
 						<div class="form-group">
-							<label for="expectedReturnTime" class="form-label">
+							<label for="expectedReturn" class="form-label">
 								お引き取り予定時刻<br />Expected Pickup Time
 							</label>
 							<input
-								id="expectedReturnTime"
+								id="expectedReturn"
 								type="time"
-								bind:value={expectedReturnTime}
-								class="form-input {!isExpectedReturnTimeValid ? 'border-red-500' : ''}"
+								bind:value={expectedReturn}
+								class="form-input {!isExpectedReturnValid ? 'border-red-500' : ''}"
 								min="09:30"
 								max="18:00"
 								disabled={processing}
 							/>
-							{#if expectedReturnTime && !isExpectedReturnTimeValid}
+							{#if expectedReturn && !isExpectedReturnValid}
 								<p class="text-xs text-red-600 mt-1">
 									営業時間内（9:00-18:00）で設定してください<br />
 									Please select within business hours (9:00-18:00)

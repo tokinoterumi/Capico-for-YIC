@@ -174,11 +174,12 @@ function prepareRowData(data, rentalId, registrationType) {
 
 	const currentTime = new Date().toISOString();
 
-	// Convert expectedReturnTime to expectedReturn if provided
+	// Handle expectedReturn - can be either time string or full ISO datetime
 	let expectedReturn = data.expectedReturn || '';
-	if (data.expectedReturnTime && !expectedReturn) {
+	if (expectedReturn && expectedReturn.includes(':') && !expectedReturn.includes('T')) {
+		// If it's just a time string (e.g., "14:12"), convert to today's datetime
 		const today = new Date();
-		const [hours, minutes] = data.expectedReturnTime.split(':').map(Number);
+		const [hours, minutes] = expectedReturn.split(':').map(Number);
 		const expectedDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 		expectedDateTime.setHours(hours, minutes, 0, 0);
 		expectedReturn = expectedDateTime.toISOString();

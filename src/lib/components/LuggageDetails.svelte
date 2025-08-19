@@ -10,15 +10,15 @@
 	let customerName = data.customerName || '';
 	let customerContact = data.customerContact || '';
 	let luggageCount = data.luggageCount || 1;
-	let expectedReturnTime = '';
+	let expectedReturn = '';
 
 	const PRICE_PER_ITEM = 500;
 
 	// --- Validate expected return time ---
-	$: isExpectedReturnTimeValid = (() => {
-		if (!expectedReturnTime) return true; // Not required, so valid if empty
+	$: isExpectedReturnValid = (() => {
+		if (!expectedReturn) return true; // Not required, so valid if empty
 
-		const [hours, minutes] = expectedReturnTime.split(':').map(Number);
+		const [hours, minutes] = expectedReturn.split(':').map(Number);
 		const selectedTime = hours * 100 + minutes; // Convert to HHMM format
 
 		// Must be within business hours (9:00-18:00)
@@ -35,7 +35,7 @@
 	})();
 
 	$: totalPrice = luggageCount * PRICE_PER_ITEM;
-	$: isValid = customerName.trim() && customerContact.trim() && isExpectedReturnTimeValid;
+	$: isValid = customerName.trim() && customerContact.trim() && isExpectedReturnValid;
 
 	function handleNext() {
 		if (isValid && onComplete) {
@@ -46,7 +46,7 @@
 					documentType: 'luggage_storage', // Fixed type for luggage
 					luggageCount,
 					totalPrice,
-					expectedReturnTime: expectedReturnTime,
+					expectedReturn: expectedReturn,
 					rentalPlan: 'luggage_storage' // Consistent with other services
 				}
 			});
@@ -95,18 +95,18 @@
 
 		<!-- Expected Return Time -->
 		<div class="form-group">
-			<label for="expectedReturnTime" class="form-label">
+			<label for="expectedReturn" class="form-label">
 				お引き取り予定時刻<br />Expected Pickup Time
 			</label>
 			<input
-				id="expectedReturnTime"
+				id="expectedReturn"
 				type="time"
-				bind:value={expectedReturnTime}
-				class="form-input max-w-xs {!isExpectedReturnTimeValid ? 'border-red-500' : ''}"
+				bind:value={expectedReturn}
+				class="form-input max-w-xs {!isExpectedReturnValid ? 'border-red-500' : ''}"
 				min="09:00"
 				max="18:00"
 			/>
-			{#if expectedReturnTime && !isExpectedReturnTimeValid}
+			{#if expectedReturn && !isExpectedReturnValid}
 				<p class="text-xs text-red-600 mt-1">
 					営業時間内（9:00-18:00）で設定してください<br />
 					Please select within business hours (9:00-18:00)

@@ -133,6 +133,7 @@
 
 			// Optimistic UI Update for instant feedback
 			formData.rentalID = rentalId;
+			formData.expectedReturn = submissionData.expectedReturn; // Add this for SuccessPage display
 			submitted = true;
 
 			// Submit to backend API (SvelteKit API route)
@@ -159,9 +160,9 @@
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 		
-		// If user provided expectedReturnTime, use it (convert to full datetime)
-		if (formData.expectedReturnTime) {
-			const [hours, minutes] = formData.expectedReturnTime.split(':').map(Number);
+		// If user provided expectedReturn as time string, use it (convert to full datetime)
+		if (formData.expectedReturn && formData.expectedReturn.includes(':') && !formData.expectedReturn.includes('T')) {
+			const [hours, minutes] = formData.expectedReturn.split(':').map(Number);
 			const userTime = new Date(today);
 			userTime.setHours(hours, minutes, 0, 0);
 			return userTime.toISOString();

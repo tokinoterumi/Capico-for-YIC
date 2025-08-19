@@ -57,6 +57,30 @@
 		}
 	}
 
+	function formatExpectedReturn(expectedReturn) {
+		if (!expectedReturn) return '';
+		const date = new Date(expectedReturn);
+		const today = new Date();
+		const isToday = date.toDateString() === today.toDateString();
+		
+		if (isToday) {
+			return date.toLocaleTimeString('ja-JP', { 
+				hour: '2-digit', 
+				minute: '2-digit',
+				hour12: false 
+			});
+		} else {
+			return date.toLocaleDateString('ja-JP', { 
+				month: 'numeric', 
+				day: 'numeric' 
+			}) + ' ' + date.toLocaleTimeString('ja-JP', { 
+				hour: '2-digit', 
+				minute: '2-digit',
+				hour12: false 
+			});
+		}
+	}
+
 	function getServiceIcon(serviceType) {
 		switch (serviceType) {
 			case 'Bike':
@@ -213,6 +237,12 @@
 						<div>
 							<span class="text-gray-500">タグ </span>
 							<span class="font-medium">{rental.luggageTagNumber}</span>
+						</div>
+					{/if}
+					{#if rental.expectedReturn}
+						<div class="col-span-2">
+							<span class="text-gray-500">予定返却 </span>
+							<span class="font-medium">{formatExpectedReturn(rental.expectedReturn)}</span>
 						</div>
 					{/if}
 				</div>

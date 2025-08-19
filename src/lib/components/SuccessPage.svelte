@@ -25,6 +25,30 @@
 		return `¥${price.toLocaleString()}`;
 	}
 
+	function formatExpectedReturn(expectedReturn: string): string {
+		if (!expectedReturn) return '';
+		const date = new Date(expectedReturn);
+		const today = new Date();
+		const isToday = date.toDateString() === today.toDateString();
+		
+		if (isToday) {
+			return date.toLocaleTimeString('ja-JP', { 
+				hour: '2-digit', 
+				minute: '2-digit',
+				hour12: false 
+			});
+		} else {
+			return date.toLocaleDateString('ja-JP', { 
+				month: 'numeric', 
+				day: 'numeric' 
+			}) + ' ' + date.toLocaleTimeString('ja-JP', { 
+				hour: '2-digit', 
+				minute: '2-digit',
+				hour12: false 
+			});
+		}
+	}
+
 	function getServiceIcon(serviceType: string): string {
 		switch (serviceType) {
 			case 'Bike':
@@ -193,6 +217,12 @@
 									<span class="text-gray-600">個数　Count</span>
 									<span class="font-medium">{rentalData.luggageCount}</span>
 								</div>
+								{#if rentalData.expectedReturn}
+									<div class="flex justify-between">
+										<span class="text-gray-600">お引き取り予定　Expected Pickup</span>
+										<span class="font-medium">{formatExpectedReturn(rentalData.expectedReturn)}</span>
+									</div>
+								{/if}
 							</div>
 						</div>
 					{/if}
