@@ -115,9 +115,13 @@
 			troubled: rentals.filter((r) => r.status === 'Troubled').length,
 			todayTotal: {
 				total: todayRentals.length,
-				bike: todayRentals.filter((r) => r.serviceType === 'Bike').length,
+				bike: todayRentals
+					.filter((r) => r.serviceType === 'Bike')
+					.reduce((sum, r) => sum + (Number(r.bikeCount) || 1), 0),
 				onsen: todayRentals.filter((r) => r.serviceType === 'Onsen').length,
-				luggage: todayRentals.filter((r) => r.serviceType === 'Luggage').length
+				luggage: todayRentals
+					.filter((r) => r.serviceType === 'Luggage')
+					.reduce((sum, r) => sum + (Number(r.luggageCount) || 1), 0)
 			},
 			todayRevenue: {
 				total: todayRentals.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0),
@@ -129,7 +133,7 @@
 					.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0),
 				luggage: todayRentals
 					.filter((r) => r.serviceType === 'Luggage')
-					.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0)
+					.reduce((sum, r) => sum + ((Number(r.luggageCount) || 1) * 500), 0)
 			}
 		};
 	}
@@ -492,7 +496,7 @@
 	/>
 {/if}
 
-<AdminLayout bind:this={adminLayout} title="管理パネル　Admin Panel" session={data.session}>
+<AdminLayout bind:this={adminLayout} title="管理パネル Admin Panel" session={data.session}>
 	<!-- Stats Overview -->
 	<div class="grid grid-cols-2 gap-4 md:grid-cols-5 lg:grid-cols-5 mb-6">
 		<!-- Pending Card -->
