@@ -174,6 +174,16 @@ function prepareRowData(data, rentalId, registrationType) {
 
 	const currentTime = new Date().toISOString();
 
+	// Convert expectedReturnTime to expectedReturn if provided
+	let expectedReturn = data.expectedReturn || '';
+	if (data.expectedReturnTime && !expectedReturn) {
+		const today = new Date();
+		const [hours, minutes] = data.expectedReturnTime.split(':').map(Number);
+		const expectedDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		expectedDateTime.setHours(hours, minutes, 0, 0);
+		expectedReturn = expectedDateTime.toISOString();
+	}
+
 	// Create service-specific row data
 	if (data.serviceType === 'Luggage') {
 		// Luggage-only row - minimal essential fields
@@ -188,7 +198,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		luggageRow[5] = customerContact; // F: customerContact
 		luggageRow[8] = data.serviceType; // I: serviceType
 		luggageRow[10] = data.totalPrice || 0; // K: totalPrice
-		luggageRow[11] = data.expectedReturn || ''; // L: expectedReturn
+		luggageRow[11] = expectedReturn; // L: expectedReturn
 		luggageRow[14] = checkedInAt; // O: checkedInAt
 		luggageRow[24] = ''; // Y: troubleNotes
 		luggageRow[32] = data.luggageCount || 0; // AG: luggageCount
@@ -259,7 +269,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		bikeRow[8] = data.serviceType; // I: serviceType
 		bikeRow[9] = data.rentalPlan || ''; // J: rentalPlan
 		bikeRow[10] = data.totalPrice || 0; // K: totalPrice
-		bikeRow[11] = data.expectedReturn || ''; // L: expectedReturn
+		bikeRow[11] = expectedReturn; // L: expectedReturn
 		bikeRow[12] = agreement; // M: agreement
 		bikeRow[13] = checkInStaff; // N: checkInStaff
 		bikeRow[14] = checkedInAt; // O: checkedInAt

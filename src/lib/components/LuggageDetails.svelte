@@ -21,8 +21,17 @@
 		const [hours, minutes] = expectedReturnTime.split(':').map(Number);
 		const selectedTime = hours * 100 + minutes; // Convert to HHMM format
 
-		// Business hours: 9:00 AM to 6:00 PM (900 to 1800)
-		return selectedTime >= 900 && selectedTime <= 1800;
+		// Must be within business hours (9:00-18:00)
+		if (selectedTime < 900 || selectedTime > 1800) return false;
+
+		// Create date object for selected time today
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const selectedDateTime = new Date(today);
+		selectedDateTime.setHours(hours, minutes, 0, 0);
+
+		// Must not be in the past (at least current time or later)
+		return selectedDateTime >= now;
 	})();
 
 	$: totalPrice = luggageCount * PRICE_PER_ITEM;

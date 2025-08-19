@@ -156,12 +156,42 @@
 	}
 
 	function calculateExpectedReturn(): string {
-		// This logic should be updated to match your latest rules
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		
+		// If user provided expectedReturnTime, use it (convert to full datetime)
+		if (formData.expectedReturnTime) {
+			const [hours, minutes] = formData.expectedReturnTime.split(':').map(Number);
+			const userTime = new Date(today);
+			userTime.setHours(hours, minutes, 0, 0);
+			return userTime.toISOString();
+		}
+		
+		// Set to 6:00 PM (18:00) today as default
+		const todaySixPM = new Date(today);
+		todaySixPM.setHours(18, 0, 0, 0);
+		
 		if (selectedService === 'Bike' && formData.rentalPlan) {
 			const hours = parseInt(formData.rentalPlan.replace('hours', ''));
-			return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+			const expectedTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+			
+			// If calculated time goes beyond 6 PM today, cap it at 6 PM
+			if (expectedTime > todaySixPM) {
+				return todaySixPM.toISOString();
+			}
+			
+			// If calculated time is before 9 AM today, set to 9 AM
+			const todayNineAM = new Date(today);
+			todayNineAM.setHours(9, 0, 0, 0);
+			if (expectedTime < todayNineAM) {
+				return todayNineAM.toISOString();
+			}
+			
+			return expectedTime.toISOString();
 		}
-		return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+		
+		// Default: 6 PM today (never tomorrow)
+		return todaySixPM.toISOString();
 	}
 
 	function goBack(): void {

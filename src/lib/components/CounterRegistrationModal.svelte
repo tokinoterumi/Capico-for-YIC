@@ -159,7 +159,17 @@
 		const [hours, minutes] = expectedReturnTime.split(':').map(Number);
 		const selectedTime = hours * 100 + minutes; // Convert to HHMM format
 
-		return selectedTime >= 900 && selectedTime <= 1800;
+		// Must be within business hours (9:00-18:00)
+		if (selectedTime < 900 || selectedTime > 1800) return false;
+
+		// Create date object for selected time today
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const selectedDateTime = new Date(today);
+		selectedDateTime.setHours(hours, minutes, 0, 0);
+
+		// Must not be in the past (at least current time or later)
+		return selectedDateTime >= now;
 	})();
 
 	// --- 表單驗證 ---
@@ -286,14 +296,37 @@
 	}
 
 	function calculateExpectedReturn(): string {
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		
+		// Set to 6:00 PM (18:00) today as default
+		const todaySixPM = new Date(today);
+		todaySixPM.setHours(18, 0, 0, 0);
+		
 		if (serviceType === 'Bike' && rentalPlan) {
 			let hours = 8; // Default full day
 			if (rentalPlan.includes('hours')) {
 				hours = parseInt(rentalPlan.replace('hours', ''));
 			}
-			return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+			const expectedTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+			
+			// If calculated time goes beyond 6 PM today, cap it at 6 PM
+			if (expectedTime > todaySixPM) {
+				return todaySixPM.toISOString();
+			}
+			
+			// If calculated time is before 9 AM today, set to 9 AM
+			const todayNineAM = new Date(today);
+			todayNineAM.setHours(9, 0, 0, 0);
+			if (expectedTime < todayNineAM) {
+				return todayNineAM.toISOString();
+			}
+			
+			return expectedTime.toISOString();
 		}
-		return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+		
+		// Default: 6 PM today (never tomorrow)
+		return todaySixPM.toISOString();
 	}
 </script>
 
