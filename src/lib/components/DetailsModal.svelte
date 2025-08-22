@@ -101,7 +101,29 @@
 
 	// Print function for receipts
 	function handlePrint() {
+		// Store original content
+		const originalContent = document.body.innerHTML;
+		
+		// Get modal content
+		const modalContent = document.querySelector('.print-content');
+		if (!modalContent) return;
+		
+		// Replace body with modal content only
+		document.body.innerHTML = modalContent.outerHTML;
+		
+		// Add print styles to body
+		document.body.style.margin = '0';
+		document.body.style.padding = '20px';
+		document.body.style.fontFamily = 'inherit';
+		
+		// Print
 		window.print();
+		
+		// Restore original content
+		document.body.innerHTML = originalContent;
+		
+		// Re-trigger Svelte reactivity
+		window.location.reload();
 	}
 
 	// Calculate actual luggage count from tag numbers
@@ -117,14 +139,14 @@
 <!-- Modal Backdrop -->
 {#if show && rental}
 	<div
-		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+		class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 print-backdrop"
 		on:click={handleBackdropClick}
 		on:keydown={(e) => e.key === 'Escape' && handleClose()}
 		role="dialog"
 		aria-modal="true"
 		tabindex="-1"
 	>
-		<div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+		<div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto print-content">
 			<!-- Header -->
 			<div class="border-b border-gray-200 px-6 py-4">
 				<div class="flex items-center justify-between">
@@ -234,16 +256,16 @@
 							{#if rental.serviceType === 'Bike'}
 								<div class="space-y-3">
 									<div class="flex justify-between">
-										<span class="text-gray-600">台数<br />Count:</span>
+										<span class="text-gray-600">台数</span>
 										<span class="font-medium">{rental.bikeCount}台</span>
 									</div>
 									<div class="flex justify-between">
-										<span class="text-gray-600">プラン<br />Plan:</span>
+										<span class="text-gray-600">プラン</span>
 										<span class="font-medium">{rental.rentalPlan}</span>
 									</div>
 									{#if rental.bikeNumber}
-										<div>
-											<span class="text-gray-600 block">自転車番号 / Bike Numbers:</span>
+										<div class="flex justify-between">
+											<span class="text-gray-600">自転車番号</span>
 											<span class="font-medium font-mono">{rental.bikeNumber}</span>
 										</div>
 									{/if}
@@ -261,17 +283,17 @@
 									{#if rental.adultMaleCount || rental.adultFemaleCount}
 										<div class="text-sm text-gray-600">
 											<div>
-												男性 {rental.adultMaleCount || 0}名 / 女性 {rental.adultFemaleCount || 0}名
+												男性 {rental.adultMaleCount || 0}名　女性 {rental.adultFemaleCount || 0}名
 											</div>
 											<div>
-												男の子 {rental.childMaleCount || 0}名 / 女の子 {rental.childFemaleCount ||
+												男の子 {rental.childMaleCount || 0}名　女の子 {rental.childFemaleCount ||
 													0}名
 											</div>
 										</div>
 									{/if}
 									{#if rental.faceTowelCount || rental.bathTowelCount}
-										<div>
-											<span class="text-gray-600 block">タオル　Towels</span>
+										<div class="flex justify-between">
+											<span class="text-gray-600">タオル　Towels</span>
 											<div class="text-sm">
 												{#if rental.faceTowelCount > 0}フェイス　{rental.faceTowelCount}枚{/if}
 												{#if rental.bathTowelCount > 0}バス　{rental.bathTowelCount}枚{/if}
@@ -279,8 +301,8 @@
 										</div>
 									{/if}
 									{#if rental.onsenKeyNumber}
-										<div>
-											<span class="text-gray-600 block">鍵番号　Key Numbers</span>
+										<div class="flex justify-between">
+											<span class="text-gray-600">鍵番号　Key Numbers</span>
 											<span class="font-medium font-mono">{rental.onsenKeyNumber}</span>
 										</div>
 									{/if}
@@ -292,14 +314,14 @@
 										<span class="font-medium">{getActualLuggageCount(rental.luggageTagNumber)}個</span>
 									</div>
 									{#if rental.luggageTagNumber}
-										<div>
-											<span class="text-gray-600 block">タグ番号</span>
+										<div class="flex justify-between">
+											<span class="text-gray-600">タグ番号</span>
 											<span class="font-medium font-mono">{rental.luggageTagNumber}</span>
 										</div>
 									{/if}
 									{#if rental.isHotelPartnership}
 										<div class="bg-purple-100 rounded p-2">
-											<div class="text-purple-800 text-sm font-medium">お荷物保管代行</div>
+											<div class="text-blue-800 text-sm font-medium">お荷物保管代行</div>
 											{#if rental.partnerHotel}
 												<div class="text-sm">宿名　{rental.partnerHotel}</div>
 											{/if}
@@ -350,6 +372,12 @@
 										<div class="flex justify-between text-xs">
 											<span class="text-gray-500">担当スタッフ</span>
 											<span>{rental.returnStaff}</span>
+										</div>
+									{/if}
+									{#if rental.returnNotes}
+										<div class="flex justify-between text-xs">
+											<span class="text-gray-500">備考</span>
+											<span class="text-right max-w-[60%]">{rental.returnNotes}</span>
 										</div>
 									{/if}
 								{:else if rental.storedAt}
@@ -414,16 +442,12 @@
 			display: none !important;
 		}
 
-		.bg-white {
-			background: white !important;
-		}
-
-		.shadow-xl {
+		.print-content {
 			box-shadow: none !important;
-		}
-
-		.rounded-xl {
 			border-radius: 0 !important;
+			max-width: none !important;
+			max-height: none !important;
+			overflow: visible !important;
 		}
 	}
 </style>
