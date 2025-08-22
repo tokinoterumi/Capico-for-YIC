@@ -39,6 +39,8 @@
 	export let rental: Rental | null = null;
 	export let onSuccess: (() => void) | null = null;
 	export let onClose: (() => void) | null = null;
+	export let activeBikeNumbers: string[] = [];
+	export let activeOnsenKeys: string[] = [];
 
 	// Form state
 	let staffName: string = '';
@@ -792,9 +794,9 @@
 											{#each availableBikes as availableBike}
 												<option
 													value={availableBike}
-													disabled={bikeNumbers.includes(availableBike) && availableBike !== bike}
+													disabled={(bikeNumbers.includes(availableBike) && availableBike !== bike) || activeBikeNumbers.includes(availableBike)}
 												>
-													{availableBike}
+													{availableBike}{activeBikeNumbers.includes(availableBike) ? ' (貸出中)' : ''}
 												</option>
 											{/each}
 										</select>
@@ -821,9 +823,9 @@
 											{#each availableOnsenKeys as availableKey}
 												<option
 													value={availableKey}
-													disabled={onsenKeyNumbers.includes(availableKey) && availableKey !== key}
+													disabled={(onsenKeyNumbers.includes(availableKey) && availableKey !== key) || activeOnsenKeys.includes(availableKey)}
 												>
-													{availableKey}
+													{availableKey}{activeOnsenKeys.includes(availableKey) ? ' (使用中)' : ''}
 												</option>
 											{/each}
 										</select>

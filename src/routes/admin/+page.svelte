@@ -215,6 +215,22 @@
 	}
 
 	// === RENTAL ACTION HANDLERS ===
+	function getActiveBikeNumbers() {
+		const activeBikes = rentals
+			.filter(rental => rental.status === 'Active' && rental.serviceType === 'Bike' && rental.bikeNumber)
+			.flatMap(rental => rental.bikeNumber.split(',').map(num => num.trim()))
+			.filter(num => num !== '');
+		return activeBikes;
+	}
+
+	function getActiveOnsenKeys() {
+		const activeKeys = rentals
+			.filter(rental => rental.status === 'Active' && rental.serviceType === 'Onsen' && rental.onsenKeyNumber)
+			.flatMap(rental => rental.onsenKeyNumber.split(',').map(num => num.trim()))
+			.filter(num => num !== '');
+		return activeKeys;
+	}
+
 	function handleCheckin(rental) {
 		selectedRental = rental;
 		showCheckinModal = true;
@@ -432,6 +448,8 @@
 	<CheckinModal
 		show={showCheckinModal}
 		rental={selectedRental}
+		activeBikeNumbers={getActiveBikeNumbers()}
+		activeOnsenKeys={getActiveOnsenKeys()}
 		onClose={closeAllModals}
 		onSuccess={() => {
 			closeAllModals();

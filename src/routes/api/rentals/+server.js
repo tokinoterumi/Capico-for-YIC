@@ -188,7 +188,7 @@ function prepareRowData(data, rentalId, registrationType) {
 	// Create service-specific row data
 	if (data.serviceType === 'Luggage') {
 		// Luggage-only row - minimal essential fields
-		const luggageRow = new Array(46); // A-AT = 46 columns
+		const luggageRow = new Array(47); // A-AU = 47 columns
 
 		// Essential luggage fields only
 		luggageRow[0] = rentalId; // A: rentalID
@@ -210,7 +210,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		return luggageRow.map((val) => (val === undefined ? '' : val));
 	} else if (data.serviceType === 'Onsen') {
 		// Onsen-specific row - relevant fields only
-		const onsenRow = new Array(46); // A-AT = 46 columns
+		const onsenRow = new Array(47); // A-AU = 47 columns
 
 		// Essential Onsen fields
 		onsenRow[0] = rentalId; // A: rentalID
@@ -257,7 +257,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		return onsenRow.map((val) => (val === undefined ? '' : val));
 	} else {
 		// Bike services - full data with bike-specific fields
-		const bikeRow = new Array(46); // A-AT = 46 columns
+		const bikeRow = new Array(47); // A-AU = 47 columns
 
 		// Essential Bike fields
 		bikeRow[0] = rentalId; // A: rentalID
@@ -311,7 +311,7 @@ export async function GET({ url }) {
 		// Get all rental data
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AT'
+			range: 'Rentals!A:AU'
 		});
 
 		const rows = response.data.values || [];
@@ -410,7 +410,7 @@ export async function POST({ request, url }) {
 		// Insert into Google Sheets
 		await sheets.spreadsheets.values.append({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AT',
+			range: 'Rentals!A:AU',
 			valueInputOption: 'RAW',
 			resource: {
 				values: [rowData]
@@ -675,7 +675,7 @@ export async function DELETE({ url }) {
 		// Get current data to find the row
 		const response = await sheets.spreadsheets.values.get({
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AT'
+			range: 'Rentals!A:AU'
 		});
 
 		const rows = response.data.values || [];

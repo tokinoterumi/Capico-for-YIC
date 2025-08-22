@@ -28,6 +28,22 @@ async function getGoogleSheetsClient() {
 	return google.sheets({ version: 'v4', auth: authClient });
 }
 
+// Helper function to get rental plan duration in hours
+function getRentalPlanDurationHours(rentalPlan) {
+	switch (rentalPlan) {
+		case '2hours':
+			return 2;
+		case '3hours':
+			return 3;
+		case '4hours':
+			return 4;
+		case 'fullday':
+			return 8; // 8 hour full day
+		default:
+			return 4; // Default to 4 hours if unknown plan
+	}
+}
+
 async function fetchRentalData(rentalID) {
 	try {
 		const sheets = await getGoogleSheetsClient();
@@ -317,6 +333,9 @@ export async function POST({ request }) {
 				if (checkinData.partnerHotel) {
 					updates.partnerHotel = checkinData.partnerHotel;
 				}
+				if (checkinData.notes) {
+					updates.checkinNotes = checkinData.notes;
+				}
 			} else {
 				// Bike/Onsen updates (full fields including staff and photo)
 				updates.checkInStaff = checkinData.staffName;
@@ -331,6 +350,9 @@ export async function POST({ request }) {
 				if (checkinData.agreement !== undefined) {
 					updates.agreement = checkinData.agreement ? 'TRUE' : 'FALSE';
 				}
+				if (checkinData.notes) {
+					updates.checkinNotes = checkinData.notes;
+				}
 
 				// Service-specific resource assignments
 				if (serviceType === 'Bike') {
@@ -340,8 +362,13 @@ export async function POST({ request }) {
 					if (checkinData.rentalPlan) {
 						updates.rentalPlan = checkinData.rentalPlan;
 					}
-					if (checkinData.expectedReturn) {
-						updates.expectedReturn = checkinData.expectedReturn;
+					// Calculate expectedReturn based on check-in time + rental plan duration
+					const rentalPlan = rentalData.rentalPlan || checkinData.rentalPlan;
+					if (rentalPlan) {
+						const checkinTime = new Date(updates.checkedInAt); // Use the actual recorded check-in time
+						const durationHours = getRentalPlanDurationHours(rentalPlan);
+						const expectedReturnTime = new Date(checkinTime.getTime() + (durationHours * 60 * 60 * 1000));
+						updates.expectedReturn = expectedReturnTime.toISOString();
 					}
 					if (checkinData.bikeCount) {
 						updates.bikeCount = checkinData.bikeCount;

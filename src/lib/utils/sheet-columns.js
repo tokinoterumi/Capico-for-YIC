@@ -63,11 +63,12 @@ export const SHEET_COLUMNS = {
 	ageRange: 'AT',
 	comeFrom: 'H',
 
-	// Additional items (AP-AT)
+	// Additional items (AP-AU)
 	faceTowelCount: 'AP',
 	bathTowelCount: 'AQ',
 	partnerHotel: 'AR',
-	createdBy: 'AS'
+	createdBy: 'AS',
+	checkinNotes: 'AU'
 };
 
 // Service-specific column groups for different operations
@@ -99,6 +100,7 @@ export const SERVICE_COLUMN_GROUPS = {
 			'expectedReturn',
 			'bikeCount',
 			'bikeNumber',
+			'checkinNotes',
 			'lastUpdated'
 		],
 		Onsen: [
@@ -122,6 +124,7 @@ export const SERVICE_COLUMN_GROUPS = {
 			'faceTowelCount',
 			'bathTowelCount',
 			'ageRange',
+			'checkinNotes',
 			'lastUpdated'
 		],
 		Luggage: [
@@ -131,6 +134,7 @@ export const SERVICE_COLUMN_GROUPS = {
 			'luggageCount',
 			'luggageTagNumber',
 			'partnerHotel',
+			'checkinNotes',
 			'lastUpdated'
 		]
 	},

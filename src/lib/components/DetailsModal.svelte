@@ -334,6 +334,12 @@
 											<span>{rental.checkInStaff}</span>
 										</div>
 									{/if}
+									{#if rental.checkinNotes}
+										<div class="flex justify-between text-xs">
+											<span class="text-gray-500">備考</span>
+											<span class="text-right max-w-[60%]">{rental.checkinNotes}</span>
+										</div>
+									{/if}
 								{/if}
 								{#if rental.returnedAt}
 									<div class="flex justify-between">
