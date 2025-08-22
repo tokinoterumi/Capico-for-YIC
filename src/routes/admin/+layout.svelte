@@ -23,12 +23,11 @@
 
 <svelte:head>
 	<!-- Admin-specific PWA configuration -->
-	<link rel="manifest" href="/admin-manifest.json?v=1.2" />
+	<link rel="manifest" href="/admin-manifest.json?v=1.3" />
 	<meta name="theme-color" content="#1e40af" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta name="apple-mobile-web-app-title" content="Capico Admin" />
-	<link rel="apple-touch-icon" sizes="180x180" href="/CapicoAdmin.png" />
 </svelte:head>
 
 <main>

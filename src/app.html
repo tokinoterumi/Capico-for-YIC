@@ -36,7 +36,20 @@
 			}
 		</script>
 
-		<link rel="apple-touch-icon" sizes="180x180" href="/Capico.png" />
+		<script>
+			// Conditionally load apple-touch-icon based on URL path
+			const currentPath = window.location.pathname;
+			console.log('Current path:', currentPath);
+			if (currentPath.startsWith('/admin')) {
+				console.log('Loading admin icon');
+				document.write('<link rel="apple-touch-icon" sizes="180x180" href="/CapicoAdmin.png" />');
+				document.write('<link rel="icon" type="image/png" sizes="192x192" href="/CapicoAdmin.png" />');
+			} else {
+				console.log('Loading main icon');
+				document.write('<link rel="apple-touch-icon" sizes="180x180" href="/Capico.png" />');
+				document.write('<link rel="icon" type="image/png" sizes="192x192" href="/Capico.png" />');
+			}
+		</script>
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
