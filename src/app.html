@@ -8,8 +8,16 @@
 		<title>Capico for YIC</title>
 
 		<!-- Favicon -->
-		<link rel="icon" type="image/png" sizes="32x32" href="/Capico-favicon.png" />
-		<link rel="icon" type="image/png" sizes="16x16" href="/Capico-favicon.png" />
+		<script>
+			// Conditionally load favicon based on URL path
+			if (window.location.pathname.startsWith('/admin')) {
+				document.write('<link rel="icon" type="image/png" sizes="32x32" href="/CapicoAdmin-favicon.png" />');
+				document.write('<link rel="icon" type="image/png" sizes="16x16" href="/CapicoAdmin-favicon.png" />');
+			} else {
+				document.write('<link rel="icon" type="image/png" sizes="32x32" href="/Capico-favicon.png" />');
+				document.write('<link rel="icon" type="image/png" sizes="16x16" href="/Capico-favicon.png" />');
+			}
+		</script>
 
 		<!-- PWA Meta Tags -->
 		<meta
