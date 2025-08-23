@@ -223,26 +223,20 @@
 						<div class="bg-blue-50 rounded-lg p-4">
 							<h3 class="font-semibold text-gray-900 mb-3">お客様情報<br />Customer Information</h3>
 							<div class="space-y-3">
-								<div>
-									<span class="text-gray-600 block">お名前</span>
+								<div class="flex justify-between">
+									<span class="text-gray-600">お名前</span>
 									<span class="font-medium">{rental.customerName}</span>
 								</div>
-								<div>
-									<span class="text-gray-600 block">連絡先</span>
+								<div class="flex justify-between">
+									<span class="text-gray-600">連絡先</span>
 									<span class="font-medium">{rental.customerContact}</span>
 								</div>
 								{#if rental.serviceType !== 'Luggage' && rental.documentType}
-									<div>
-										<span class="text-gray-600 block">身分証明書</span>
+									<div class="flex justify-between">
+										<span class="text-gray-600">身分証明書</span>
 										<span class="font-medium"
 											>{getDocumentTypeDisplayName(rental.documentType)}</span
 										>
-									</div>
-								{/if}
-								{#if rental.companion}
-									<div>
-										<span class="text-gray-600 block">同行者</span>
-										<span class="font-medium">{rental.companion}</span>
 									</div>
 								{/if}
 							</div>
