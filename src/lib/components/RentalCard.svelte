@@ -205,7 +205,7 @@
 					</div>
 					{#if rental.bikeNumber}
 						<div>
-							<span class="text-gray-500">台数 </span>
+							<span class="text-gray-500">番号 </span>
 							<span class="font-medium">{rental.bikeNumber}</span>
 						</div>
 					{/if}

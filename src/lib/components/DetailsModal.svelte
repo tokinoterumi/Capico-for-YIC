@@ -158,7 +158,7 @@
 						<button
 							on:click={handlePrint}
 							class="btn-secondary text-sm no-print"
-							title="印刷 / Print"
+							title="Print"
 						>
 							<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
 								<path
@@ -328,8 +328,8 @@
 										</div>
 									{/if}
 									{#if rental.expectedReturn}
-										<div>
-											<span class="text-gray-600 block">予定返却日時<br />Scheduled Return</span>
+										<div class="flex justify-between">
+											<span class="text-gray-600">予定返却日時</span>
 											<span class="font-medium">{formatDateTime(rental.expectedReturn)}</span>
 										</div>
 									{/if}
