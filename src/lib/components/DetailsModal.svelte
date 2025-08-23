@@ -43,15 +43,17 @@
 			case 'passport':
 				return 'パスポート';
 			case 'driver_license':
+			case 'drivinglicense':
+			case 'license':
 				return '運転免許証';
 			case 'national_id':
+			case 'nationalid':
 				return 'マイナンバーカード';
 			case 'residence_card':
+			case 'residencecard':
 				return '在留カード';
-			case 'student_id':
-				return '学生証';
 			case 'other':
-				return 'その他身分証明書';
+				return 'その他';
 			default:
 				return documentType || '身分証明書';
 		}
