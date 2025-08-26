@@ -416,7 +416,7 @@
 	$: groupedRentals = browser
 		? {
 				pending: filteredRentals.filter((r) => r.status === 'Pending'),
-				awaitingStorage: filteredRentals.filter((r) => r.status === 'Awaiting_Storage'),
+				awaitingStorage: filteredRentals.filter((r) => r.status === 'Pending' && r.serviceType === 'Luggage'),
 				active: filteredRentals.filter((r) => r.status === 'Active'),
 				troubled: filteredRentals.filter((r) => r.status === 'Troubled'),
 				closed: filteredRentals.filter(
@@ -764,6 +764,7 @@
 						<RentalCard
 							{rental}
 							on:return={(e) => handleReturn(e.detail)}
+							on:edit={(e) => handleEdit(e.detail)}
 							on:trouble={(e) => handleTrouble(e.detail)}
 							on:viewDetails={(e) => handleViewDetails(e.detail)}
 						/>

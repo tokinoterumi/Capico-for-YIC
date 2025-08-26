@@ -156,7 +156,7 @@
 							.replace(/\s+/g, '-')
 							.replace(/[()]/g, '')}"
 					>
-						{rental.status === 'Awaiting_Storage' ? 'Awaiting Storage' : rental.status}
+						{rental.status}
 					</span>
 				</div>
 				<p class="text-sm text-gray-600 mt-1">
@@ -263,13 +263,14 @@
 				<button on:click={handleCheckin} class="btn-primary text-sm px-3 py-2">チェックイン</button>
 				<button on:click={handleEdit} class="btn-secondary text-sm px-3 py-2">編集</button>
 				<button on:click={handleCancel} class="btn-secondary text-sm px-3 py-2">キャンセル</button>
-			{:else if rental.status === 'Awaiting_Storage'}
-				<button on:click={handleMoveToActive} class="btn-success text-sm px-3 py-2">保管完了</button>
+			{:else if rental.status === 'Pending' && rental.serviceType === 'Luggage'}
+				<button on:click={handleCheckin} class="btn-primary text-sm px-3 py-2">チェックイン</button>
 				<button on:click={handleEdit} class="btn-secondary text-sm px-3 py-2">編集</button>
 			{:else if rental.status === 'Active'}
 				<button on:click={handleReturn} class="btn-primary text-sm px-3 py-2">
 					{rental.serviceType === 'Luggage' ? '引き渡し' : '返却'}
 				</button>
+				<button on:click={handleEdit} class="btn-secondary text-sm px-3 py-2">編集</button>
 				<button on:click={handleTrouble} class="btn-danger text-sm px-3 py-2">トラブル</button>
 			{:else if rental.status === 'Troubled'}
 				<button on:click={handleResolve} class="btn-success text-sm px-3 py-2">解決済み</button>

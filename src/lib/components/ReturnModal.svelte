@@ -269,6 +269,30 @@
 					</p>
 				</div>
 
+				<!-- Bike Condition Checklist -->
+				{#if rental?.serviceType === 'Bike'}
+					<div class="form-group">
+						<label class="form-label">
+							自転車状態チェック項目<br />Bicycle Condition Checklist
+						</label>
+							<ul class="space-y-2 text-sm text-gray-700 p-2">
+								<li>◯ フレーム・前フォークやクランク、ペダルなどの部品に変形やひび割れやガタつきはないか</li>
+								<li>◯ ハンドル・サドルの締め付け確認</li>
+								<li>◯ ハンドルやサドルのポストは限界標識が隠れるまで差し込まれているか</li>
+								<li>◯ サドルの固定</li>
+								<li>◯ ヘッド部の緩み、ガタはないか</li>
+								<li>◯ 前輪・後輪の固定は十分か</li>
+								<li>◯ 車輪の揺れ・カタ・回転性の確認</li>
+								<li>◯ ブレーキの確認</li>
+								<li>◯ ギアは正常に動くか</li>
+								<li>◯ タイヤの空気圧（乗車時タイヤ接地面が9~10cmくらいが適当）</li>
+								<li>◯ ライトの点灯</li>
+								<li>◯ 鍵の施錠ができるか</li>
+								<li>◯ ヘルメットに不具合はないか</li>
+							</ul>
+						</div>
+				{/if}
+
 				<!-- Good Condition Checkbox -->
 				<div class="form-group">
 					<div class="flex items-start space-x-3">

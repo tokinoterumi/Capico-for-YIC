@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import CheckinModal from '$lib/components/CheckinModal.svelte';
 
 	export let onCountUpdate: ((event: { detail: { count: number } }) => void) | null = null;
 
@@ -57,6 +58,8 @@
 	let awaitingItems: AwaitingItem[] = [];
 	let loading = true;
 	let error: string | null = null;
+	let selectedRental: any | null = null; // Compatible with CheckinModal's Rental interface
+	let showCheckinModal = false;
 
 	onMount(() => {
 		loadAwaitingItems();
@@ -76,7 +79,7 @@
 		error = null;
 
 		try {
-			const response = await fetch('/api/rentals?status=Awaiting_Storage');
+			const response = await fetch('/api/rentals?status=Pending&serviceType=Luggage');
 
 			if (!response.ok) {
 				throw new Error('Failed to fetch awaiting storage items');
@@ -99,30 +102,31 @@
 		}
 	}
 
-	async function handleMoveToActive(item: AwaitingItem) {
-		try {
-			const response = await fetch('/api/move-to-active', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					rentalID: item.rentalID,
-					storageLocation: 'Area A - Front', // Default location
-					notes: 'Completed from awaiting storage widget'
-				})
-			});
+	function handleCheckin(item: AwaitingItem) {
+		// Convert AwaitingItem to CheckinModal-compatible rental object
+		selectedRental = {
+			rentalID: item.rentalID,
+			serviceType: item.serviceType,
+			customerName: item.customerName,
+			luggageCount: item.luggageCount || 1,
+			totalPrice: undefined, // Not needed for luggage checkin
+			bikeCount: undefined,
+			totalAdultCount: undefined,
+			totalChildCount: undefined
+		};
+		showCheckinModal = true;
+	}
 
-			if (response.ok) {
-				// Remove item from list and refresh
-				await loadAwaitingItems(false);
-				alert(`保管完了: ${item.rentalID}`);
-			} else {
-				const errorData = await response.json();
-				alert(`エラー: ${errorData.message}`);
-			}
-		} catch (err) {
-			console.error('Move to active error:', err);
-			alert('保管完了処理中にエラーが発生しました');
-		}
+	function handleCheckinSuccess() {
+		showCheckinModal = false;
+		selectedRental = null;
+		// Refresh the list to remove checked-in item
+		loadAwaitingItems(false);
+	}
+
+	function handleCheckinCancel() {
+		showCheckinModal = false;
+		selectedRental = null;
 	}
 
 	function formatTime(dateString: string): string {
@@ -272,13 +276,13 @@
 								</div>
 							</div>
 							<button
-								on:click={() => handleMoveToActive(item)}
+								on:click={() => handleCheckin(item)}
 								disabled={item.isOptimistic}
 								class="px-2 py-1 text-xs rounded transition-colors {item.isOptimistic
 									? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-									: 'bg-green-600 text-white hover:bg-green-700'}"
+									: 'bg-blue-600 text-white hover:bg-blue-700'}"
 							>
-								{item.isOptimistic ? '待機' : '完了'}
+								{item.isOptimistic ? '待機' : 'チェックイン'}
 							</button>
 						</div>
 
@@ -339,3 +343,13 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Checkin Modal -->
+{#if showCheckinModal && selectedRental}
+	<CheckinModal
+		rental={selectedRental}
+		show={showCheckinModal}
+		onSuccess={handleCheckinSuccess}
+		onClose={handleCheckinCancel}
+	/>
+{/if}

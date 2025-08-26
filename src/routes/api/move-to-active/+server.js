@@ -110,12 +110,12 @@ export async function POST({ request }) {
 		console.log(currentRental);
 		console.log('--- END DEBUGGING ---');
 		// Check if rental can be moved to active
-		if (currentRental.status !== 'Awaiting_Storage') {
+		if (currentRental.status !== 'Pending') {
 			return json(
 				{
 					success: false,
 					error: 'Status transition not allowed',
-					message: `Cannot move rental with status '${currentRental.status}' to Active. Only Awaiting_Storage rentals can be moved to Active.`,
+					message: `Cannot move rental with status '${currentRental.status}' to Active. Only Pending rentals can be moved to Active.`,
 					currentStatus: currentRental.status
 				},
 				{ status: 409 }
@@ -199,7 +199,7 @@ export async function POST({ request }) {
 			rentalID: storageData.rentalID,
 			message: 'Luggage storage completed successfully',
 			storage: {
-				previousStatus: 'Awaiting_Storage',
+				previousStatus: 'Pending',
 				newStatus: 'Active',
 				storageStaff: '', // No staff tracking for luggage
 				storedAt: updates.storedAt,
@@ -299,12 +299,12 @@ export async function GET() {
 					'Oversized Items',
 					'Valuable Items'
 				],
-				statusTransition: 'Awaiting_Storage → Active',
+				statusTransition: 'Pending → Active',
 				serviceTypeRestriction: 'Luggage storage only',
 				workflow: {
 					step1: 'Customer registers luggage storage',
 					step2: 'Counter staff processes payment and assigns tags',
-					step3: 'Status becomes Awaiting_Storage',
+					step3: 'Status becomes Pending',
 					step4: 'Floor staff physically stores items',
 					step5: 'This endpoint moves status to Active',
 					step6: 'Customer can now pick up items'

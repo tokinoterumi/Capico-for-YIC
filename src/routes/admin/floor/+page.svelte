@@ -43,7 +43,7 @@
 		error = null;
 
 		try {
-			const response = await fetch('/api/rentals?status=Awaiting_Storage');
+			const response = await fetch('/api/rentals?status=Pending&serviceType=Luggage');
 
 			if (!response.ok) {
 				throw new Error('Failed to fetch storage items');

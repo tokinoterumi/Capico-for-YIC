@@ -11,11 +11,14 @@
 	let customerContact = '';
 	let bikeCount = 1;
 	let rentalPlan = '';
+	let bikeNumbers = [''];
 	let totalAdultCount = 0;
 	let totalChildCount = 0;
 	let faceTowelCount = 0;
 	let bathTowelCount = 0;
+	let onsenKeyNumbers = [''];
 	let luggageCount = 1;
+	let luggageTagNumbers = [''];
 	let notes = '';
 
 	// Initialize form data when rental changes (client-side only)
@@ -24,12 +27,37 @@
 		customerContact = rental.customerContact || '';
 		bikeCount = parseInt(rental.bikeCount) || 1;
 		rentalPlan = rental.rentalPlan || '';
+		// Parse bike numbers from comma-separated string or create empty array
+		bikeNumbers = rental.bikeNumber ? rental.bikeNumber.split(',').map(n => n.trim()) : [''];
 		totalAdultCount = parseInt(rental.totalAdultCount) || 0;
 		totalChildCount = parseInt(rental.totalChildCount) || 0;
 		faceTowelCount = parseInt(rental.faceTowelCount) || 0;
 		bathTowelCount = parseInt(rental.bathTowelCount) || 0;
+		// Parse onsen key numbers from comma-separated string or create empty array
+		onsenKeyNumbers = rental.onsenKeyNumber ? rental.onsenKeyNumber.split(',').map(n => n.trim()) : [''];
 		luggageCount = parseInt(rental.luggageCount) || 1;
+		// Parse luggage tag numbers from comma-separated string or create empty array
+		luggageTagNumbers = rental.luggageTagNumber ? rental.luggageTagNumber.split(',').map(n => n.trim()) : [''];
 		notes = rental.notes || '';
+	}
+	
+	// Reactive statements to adjust array sizes based on counts
+	$: if (bikeNumbers && bikeCount) {
+		while (bikeNumbers.length < bikeCount) {
+			bikeNumbers = [...bikeNumbers, ''];
+		}
+		if (bikeNumbers.length > bikeCount) {
+			bikeNumbers = bikeNumbers.slice(0, bikeCount);
+		}
+	}
+	
+	$: if (luggageTagNumbers && luggageCount) {
+		while (luggageTagNumbers.length < luggageCount) {
+			luggageTagNumbers = [...luggageTagNumbers, ''];
+		}
+		if (luggageTagNumbers.length > luggageCount) {
+			luggageTagNumbers = luggageTagNumbers.slice(0, luggageCount);
+		}
 	}
 
 	async function handleSave() {
@@ -49,13 +77,16 @@
 			if (rental.serviceType === 'Bike') {
 				updateData.bikeCount = bikeCount;
 				updateData.rentalPlan = rentalPlan;
+				updateData.bikeNumber = bikeNumbers.filter(n => n.trim()).join(', ');
 			} else if (rental.serviceType === 'Onsen') {
 				updateData.totalAdultCount = totalAdultCount;
 				updateData.totalChildCount = totalChildCount;
 				updateData.faceTowelCount = faceTowelCount;
 				updateData.bathTowelCount = bathTowelCount;
+				updateData.onsenKeyNumber = onsenKeyNumbers[0] || '';
 			} else if (rental.serviceType === 'Luggage') {
 				updateData.luggageCount = luggageCount;
+				updateData.luggageTagNumber = luggageTagNumbers.filter(n => n.trim()).join(', ');
 			}
 
 			const response = await fetch('/api/rentals', {
@@ -186,6 +217,24 @@
 								</select>
 							</div>
 						</div>
+						<div class="mt-4">
+							<label class="block text-sm font-medium text-gray-700 mb-1">
+								自転車番号<br />Bike Numbers
+							</label>
+							<div class="space-y-2">
+								{#each bikeNumbers as bikeNumber, index (index)}
+									<div class="flex items-center space-x-2">
+										<span class="text-sm text-gray-600 w-8">#{index + 1}</span>
+										<input
+											type="text"
+											bind:value={bikeNumbers[index]}
+											class="form-input flex-1"
+											placeholder="例: 001"
+										/>
+									</div>
+								{/each}
+							</div>
+						</div>
 					</div>
 				{:else if rental?.serviceType === 'Onsen'}
 					<div class="border-t pt-4">
@@ -244,23 +293,54 @@
 								/>
 							</div>
 						</div>
+						<div class="mt-4">
+							<label for="onsenKeyNumber" class="block text-sm font-medium text-gray-700 mb-1">
+								鍵番号<br />Key Number
+							</label>
+							<input
+								id="onsenKeyNumber"
+								type="text"
+								bind:value={onsenKeyNumbers[0]}
+								class="form-input w-full"
+								placeholder="例: 01, 02, 03"
+							/>
+						</div>
 					</div>
 				{:else if rental?.serviceType === 'Luggage'}
 					<div class="border-t pt-4">
 						<h3 class="text-lg font-medium text-gray-900 mb-4">
 							荷物預かり詳細<br />Luggage Details
 						</h3>
-						<div>
-							<label for="luggageCount" class="block text-sm font-medium text-gray-700 mb-1">
-								個数　Number of Items
-							</label>
-							<input
-								id="luggageCount"
-								type="number"
-								min="1"
-								bind:value={luggageCount}
-								class="form-input w-full"
-							/>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label for="luggageCount" class="block text-sm font-medium text-gray-700 mb-1">
+									個数　Number of Items
+								</label>
+								<input
+									id="luggageCount"
+									type="number"
+									min="1"
+									bind:value={luggageCount}
+									class="form-input w-full"
+								/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">
+									タグ番号　Tag Numbers
+								</label>
+								<div class="space-y-2">
+									{#each luggageTagNumbers as tagNumber, index (index)}
+										<div class="flex items-center space-x-2">
+											<span class="text-sm text-gray-600 w-8">#{index + 1}</span>
+											<input
+												type="text"
+												bind:value={luggageTagNumbers[index]}
+												class="form-input flex-1"
+											/>
+										</div>
+									{/each}
+								</div>
+							</div>
 						</div>
 					</div>
 				{/if}

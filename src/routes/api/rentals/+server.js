@@ -152,7 +152,7 @@ function prepareRowData(data, rentalId, registrationType) {
 		customerName = data.hotelName; // Just use hotel name directly
 		customerContact = ''; // Leave blank for hotel registrations
 		documentType = ''; // Leave blank for hotel registrations
-		status = 'Awaiting_Storage'; // Hotel luggage goes directly to fulfillment queue
+		status = 'Pending'; // Hotel luggage starts as Pending
 		checkInStaff = ''; // No staff tracking for luggage
 		checkedInAt = new Date().toISOString();
 		verified = true; // Auto-verified for trusted partners
@@ -168,7 +168,7 @@ function prepareRowData(data, rentalId, registrationType) {
 			checkInStaff = data.staffName;
 			checkedInAt = new Date().toISOString();
 			verified = true;
-			status = data.serviceType === SERVICE_TYPES.LUGGAGE ? 'Awaiting_Storage' : 'Active';
+			status = 'Pending'; // Counter registrations start as Pending regardless of service type
 		}
 	}
 
@@ -440,7 +440,7 @@ export async function POST({ request, url }) {
 					: [],
 				totalPrice,
 				registeredBy: data.staffName,
-				status: 'Awaiting_Storage',
+				status: 'Pending',
 				expectedReturn: data.expectedReturn,
 				notes: data.notes || ''
 			};

@@ -76,8 +76,6 @@
 		switch (status) {
 			case 'Pending':
 				return 'bg-amber-100 text-amber-800';
-			case 'Awaiting_Storage':
-				return 'bg-indigo-100 text-indigo-800';
 			case 'Active':
 				return 'bg-green-100 text-green-800';
 			case 'Troubled':
@@ -265,6 +263,16 @@
 											<span class="font-medium font-mono">{rental.bikeNumber}</span>
 										</div>
 									{/if}
+									<div class="flex justify-between">
+										<span class="text-gray-600">規約の同意</span>
+										<span class="font-medium">
+											{#if rental.agreement}
+												<span>同意済み</span>
+											{:else}
+												<span class="text-gray-400">未確認</span>
+											{/if}
+										</span>
+									</div>
 								</div>
 							{:else if rental.serviceType === 'Onsen'}
 								<div class="space-y-3">
@@ -302,6 +310,16 @@
 											<span class="font-medium font-mono">{rental.onsenKeyNumber}</span>
 										</div>
 									{/if}
+									<div class="flex justify-between">
+										<span class="text-gray-600">規約の同意</span>
+										<span class="font-medium">
+											{#if rental.agreement}
+												<span class="text-green-600">✓ 同意済み</span>
+											{:else}
+												<span class="text-gray-400">未確認</span>
+											{/if}
+										</span>
+									</div>
 								</div>
 							{:else if rental.serviceType === 'Luggage'}
 								<div class="space-y-3">

@@ -3,7 +3,6 @@
 	import { createEventDispatcher } from 'svelte';
 	export let show = false;
 
-	// 建立一個事件派發器
 	const dispatch = createEventDispatcher();
 
 	let customerName = '';
@@ -96,9 +95,9 @@
 	// Onsen calculations
 	$: totalAdultCount = adultMaleCount + adultFemaleCount;
 	$: totalChildCount = childMaleCount + childFemaleCount;
-	$: adultUnitPrice = ADULT_PRICE; // Always use regular price
-	$: childUnitPrice = CHILD_PRICE; // Always use regular price
-	$: kidsUnitPrice = KIDS_PRICE; // Kids price
+	$: adultUnitPrice = ADULT_PRICE;
+	$: childUnitPrice = CHILD_PRICE;
+	$: kidsUnitPrice = KIDS_PRICE;
 	$: adultSubtotal = adultUnitPrice * totalAdultCount;
 	$: childSubtotal = childUnitPrice * totalChildCount;
 	$: kidsSubtotal = kidsUnitPrice * kidsCount;
@@ -106,7 +105,6 @@
 	$: bathTowelSubtotal = BATH_TOWEL_PRICE * bathTowelCount;
 	$: onsenTotalPrice = adultSubtotal + childSubtotal + kidsSubtotal + faceTowelSubtotal + bathTowelSubtotal;
 
-	// --- 定義服務類型和價格 (這部分保持不變) ---
 	interface ServicePricing {
 		base: number;
 		label: string;
@@ -134,7 +132,6 @@
 		}
 	};
 
-	// --- 計算總價 ---
 	$: {
 		if (serviceType && servicePricing[serviceType]) {
 			if (serviceType === 'Bike' && rentalPlan && servicePricing.Bike.plans?.[rentalPlan]) {
@@ -142,7 +139,6 @@
 			} else if (serviceType === 'Luggage') {
 				totalPrice = servicePricing.Luggage.base * luggageCount;
 			} else if (serviceType === 'Onsen') {
-				// Use detailed Onsen calculation instead of fixed price
 				totalPrice = onsenTotalPrice;
 			} else {
 				totalPrice = 0;
@@ -181,7 +177,6 @@
 		(serviceType !== 'Onsen' || (documentType && (totalAdultCount > 0 || totalChildCount > 0 || kidsCount > 0))) &&
 		isExpectedReturnValid;
 
-	// --- 當 Modal 打開時重設表單 (這部分保持不變) ---
 	$: if (show) {
 		resetForm();
 	}
@@ -250,25 +245,20 @@
 		return todaySixPM.toISOString();
 	}
 
-	// --- 處理表單提交 (修正 API 呼叫) ---
 	async function handleSubmit() {
 		if (!isValid) return;
 		processing = true;
 
 		try {
-			// 準備要發送到後端的原始資料
 			const staffInput = {
-				// 加上 submissionType，讓後端知道這是員工手動建立的
 				submissionType: 'STAFF_COUNTER',
 				createdBy: 'staff', // This is needed for proper registration type detection
 
-				// 基本資料
 				customerName: customerName.trim(),
 				customerContact: customerContact.trim(),
 				serviceType: serviceType,
 				totalPrice: totalPrice,
 
-				// 根據服務類型，附加特定的資料
 				...(serviceType === 'Bike' && {
 					bikeCount: bikeCount,
 					rentalPlan: rentalPlan,
@@ -306,12 +296,9 @@
 				const newRentalID = result.rentalId;
 				alert(`カウンター登録完了 (Counter registration completed)\nID: ${newRentalID}`);
 
-				// 派發 'success' 事件，通知父組件
 				dispatch('success');
 			} else {
 				const error = await response.json();
-				console.log('API Error Response:', error); // Debug log
-				console.log('Sent data:', staffInput); // Debug log
 				alert(
 					`エラー (Error): ${error.error || error.message || 'Unknown error'}\nDetails: ${JSON.stringify(error.details)}`
 				);
@@ -326,13 +313,10 @@
 		}
 	}
 
-	// --- 處理關閉事件 (修正) ---
 	function handleClose() {
-		// 派發一個 'close' 事件，讓父組件監聽並處理
 		dispatch('close');
 	}
 
-	// --- 處理點擊背景關閉 (這部分保持不變) ---
 	function handleBackdropClick(event: MouseEvent) {
 		if (event.target === event.currentTarget) {
 			handleClose();

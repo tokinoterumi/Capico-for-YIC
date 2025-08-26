@@ -225,7 +225,7 @@ export async function POST({ request }) {
 			}
 
 			resourceData.luggageTagNumbers = checkinData.luggageTagNumbers;
-			resourceData.nextStatus = 'Awaiting_Storage'; // Luggage goes to awaiting storage first
+			resourceData.nextStatus = 'Active'; // All services go to Active after checkin
 		}
 
 		// Upload photo to Google Apps Script (if photo exists)
@@ -518,7 +518,7 @@ export async function GET() {
 				statusTransitions: {
 					Bike: 'Pending → Active',
 					Onsen: 'Pending → Active',
-					Luggage: 'Pending → Awaiting_Storage'
+					Luggage: 'Pending → Active'
 				}
 			}
 		},
