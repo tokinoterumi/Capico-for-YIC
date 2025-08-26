@@ -1,6 +1,6 @@
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-
 	export let show = false;
 
 	// 建立一個事件派發器
@@ -208,6 +208,48 @@
 		processing = false;
 	}
 
+	function calculateExpectedReturn(): string {
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		
+		// If user provided expectedReturn as time string, convert JST to UTC for storage
+		if (expectedReturn && expectedReturn.includes(':') && !expectedReturn.includes('T')) {
+			const [hours, minutes] = expectedReturn.split(':').map(Number);
+			const userTime = new Date(today);
+			userTime.setHours(hours, minutes, 0, 0);
+			return userTime.toISOString(); // This converts JST to UTC correctly
+		}
+		
+		// Set to 6:00 PM (18:00) today as default
+		const todaySixPM = new Date(today);
+		todaySixPM.setHours(18, 0, 0, 0);
+		
+		if (serviceType === 'Bike' && rentalPlan) {
+			let hours = 8; // Default full day
+			if (rentalPlan.includes('hours')) {
+				hours = parseInt(rentalPlan.replace('hours', ''));
+			}
+			const expectedTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+			
+			// If calculated time goes beyond 6 PM today, cap it at 6 PM
+			if (expectedTime > todaySixPM) {
+				return todaySixPM.toISOString();
+			}
+			
+			// If calculated time is before 9 AM today, set to 9 AM
+			const todayNineAM = new Date(today);
+			todayNineAM.setHours(9, 0, 0, 0);
+			if (expectedTime < todayNineAM) {
+				return todayNineAM.toISOString();
+			}
+			
+			return expectedTime.toISOString();
+		}
+		
+		// Default: 6 PM today (never tomorrow)
+		return todaySixPM.toISOString();
+	}
+
 	// --- 處理表單提交 (修正 API 呼叫) ---
 	async function handleSubmit() {
 		if (!isValid) return;
@@ -230,11 +272,12 @@
 				...(serviceType === 'Bike' && {
 					bikeCount: bikeCount,
 					rentalPlan: rentalPlan,
-					documentType: documentType
+					documentType: documentType,
+					expectedReturn: calculateExpectedReturn()
 				}),
 				...(serviceType === 'Luggage' && {
 					luggageCount: luggageCount,
-					expectedReturn: expectedReturn
+					expectedReturn: calculateExpectedReturn()
 				}),
 				...(serviceType === 'Onsen' && {
 					documentType: documentType,
@@ -247,7 +290,8 @@
 					totalAdultCount: totalAdultCount,
 					totalChildCount: totalChildCount,
 					faceTowelCount: faceTowelCount,
-					bathTowelCount: bathTowelCount
+					bathTowelCount: bathTowelCount,
+					expectedReturn: calculateExpectedReturn()
 				})
 			};
 
@@ -295,47 +339,6 @@
 		}
 	}
 
-	function calculateExpectedReturn(): string {
-		const now = new Date();
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		
-		// If user provided expectedReturn as time string, use it (convert to full datetime)
-		if (expectedReturn && expectedReturn.includes(':') && !expectedReturn.includes('T')) {
-			const [hours, minutes] = expectedReturn.split(':').map(Number);
-			const userTime = new Date(today);
-			userTime.setHours(hours, minutes, 0, 0);
-			return userTime.toISOString();
-		}
-		
-		// Set to 6:00 PM (18:00) today as default
-		const todaySixPM = new Date(today);
-		todaySixPM.setHours(18, 0, 0, 0);
-		
-		if (serviceType === 'Bike' && rentalPlan) {
-			let hours = 8; // Default full day
-			if (rentalPlan.includes('hours')) {
-				hours = parseInt(rentalPlan.replace('hours', ''));
-			}
-			const expectedTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
-			
-			// If calculated time goes beyond 6 PM today, cap it at 6 PM
-			if (expectedTime > todaySixPM) {
-				return todaySixPM.toISOString();
-			}
-			
-			// If calculated time is before 9 AM today, set to 9 AM
-			const todayNineAM = new Date(today);
-			todayNineAM.setHours(9, 0, 0, 0);
-			if (expectedTime < todayNineAM) {
-				return todayNineAM.toISOString();
-			}
-			
-			return expectedTime.toISOString();
-		}
-		
-		// Default: 6 PM today (never tomorrow)
-		return todaySixPM.toISOString();
-	}
 </script>
 
 <!-- Modal Backdrop -->
