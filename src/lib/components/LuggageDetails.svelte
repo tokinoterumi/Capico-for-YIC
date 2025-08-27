@@ -146,9 +146,9 @@
 				<ul class="text-cyan-800 space-y-1">
 					<li>
 						現金・貴重品・壊れやすい物品のお預かりは致しかねます。<br />お荷物は本日<strong
-							>18:00</strong
-						>までにお引き取りください。<br />No cash, valuables, or fragile items accepted.<br
-						/>Please pick up your luggage by <strong>18:00 (6 PM)</strong> today.
+							>17:30</strong
+						>を目安にお引き取りください。<br />No cash, valuables, or fragile items accepted.<br
+						/>Please pick up your luggage by <strong>17:30 (5:30 PM)</strong> today.
 					</li>
 				</ul>
 			</div>
