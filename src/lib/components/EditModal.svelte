@@ -6,6 +6,19 @@
 
 	let processing = false;
 
+	// Generate time options from 9:00 to 17:30 with 30-minute intervals
+	const timeOptions = (() => {
+		const options = [];
+		for (let hour = 9; hour <= 17; hour++) {
+			for (let minute = 0; minute < 60; minute += 30) {
+				if (hour === 17 && minute > 30) break; // Stop at 17:30
+				const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+				options.push(timeString);
+			}
+		}
+		return options;
+	})();
+
 	// Form fields initialized from rental data
 	let customerName = '';
 	let customerContact = '';
@@ -19,6 +32,7 @@
 	let onsenKeyNumbers = [''];
 	let luggageCount = 1;
 	let luggageTagNumbers = [''];
+	let expectedReturn = '';
 	let notes = '';
 
 	// Initialize form data when rental changes (client-side only)
@@ -38,6 +52,7 @@
 		luggageCount = parseInt(rental.luggageCount) || 1;
 		// Parse luggage tag numbers from comma-separated string or create empty array
 		luggageTagNumbers = rental.luggageTagNumber ? rental.luggageTagNumber.split(',').map(n => n.trim()) : [''];
+		expectedReturn = rental.expectedReturn || '';
 		notes = rental.notes || '';
 	}
 	
@@ -87,6 +102,7 @@
 			} else if (rental.serviceType === 'Luggage') {
 				updateData.luggageCount = luggageCount;
 				updateData.luggageTagNumber = luggageTagNumbers.filter(n => n.trim()).join(', ');
+				updateData.expectedReturn = expectedReturn;
 			}
 
 			const response = await fetch('/api/rentals', {
@@ -325,21 +341,35 @@
 								/>
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">
-									タグ番号　Tag Numbers
+								<label for="expectedReturn" class="block text-sm font-medium text-gray-700 mb-1">
+									お引き取り予定時刻　Expected Pickup Time
 								</label>
-								<div class="space-y-2">
-									{#each luggageTagNumbers as tagNumber, index (index)}
-										<div class="flex items-center space-x-2">
-											<span class="text-sm text-gray-600 w-8">#{index + 1}</span>
-											<input
-												type="text"
-												bind:value={luggageTagNumbers[index]}
-												class="form-input flex-1"
-											/>
-										</div>
+								<select
+									id="expectedReturn"
+									bind:value={expectedReturn}
+									class="form-select w-full"
+								>
+									{#each timeOptions as time}
+										<option value={time}>{time}</option>
 									{/each}
-								</div>
+								</select>
+							</div>
+						</div>
+						<div class="mt-4">
+							<label class="block text-sm font-medium text-gray-700 mb-1">
+								タグ番号　Tag Numbers
+							</label>
+							<div class="space-y-2">
+								{#each luggageTagNumbers as tagNumber, index (index)}
+									<div class="flex items-center space-x-2">
+										<span class="text-sm text-gray-600 w-8">#{index + 1}</span>
+										<input
+											type="text"
+											bind:value={luggageTagNumbers[index]}
+											class="form-input flex-1"
+										/>
+									</div>
+								{/each}
 							</div>
 						</div>
 					</div>
@@ -363,7 +393,7 @@
 			<!-- Footer -->
 			<div class="border-t border-gray-200 px-6 py-4">
 				<div class="flex justify-end space-x-3">
-					<button type="button" on:click={handleClose} class="btn-secondary"> キャンセル </button>
+					<button type="button" on:click={handleClose} class="btn-secondary"> キャンセル<br/>Cancel </button>
 					<button
 						type="button"
 						on:click={handleSave}

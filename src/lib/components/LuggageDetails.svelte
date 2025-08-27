@@ -5,7 +5,6 @@
 	export let onComplete;
 	/** @type {() => void} */
 	export let onBack;
-	export const simplified = false; // For external reference only
 
 	let customerName = data.customerName || '';
 	let customerContact = data.customerContact || '';
@@ -14,15 +13,24 @@
 
 	const PRICE_PER_ITEM = 500;
 
+	// Generate time options from 9:00 to 17:30 with 30-minute intervals
+	const timeOptions = (() => {
+		const options = [];
+		for (let hour = 9; hour <= 17; hour++) {
+			for (let minute = 0; minute < 60; minute += 30) {
+				if (hour === 17 && minute > 30) break; // Stop at 17:30
+				const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+				options.push(timeString);
+			}
+		}
+		return options;
+	})();
+
 	// --- Validate expected return time ---
 	$: isExpectedReturnValid = (() => {
 		if (!expectedReturn) return true; // Not required, so valid if empty
 
 		const [hours, minutes] = expectedReturn.split(':').map(Number);
-		const selectedTime = hours * 100 + minutes; // Convert to HHMM format
-
-		// Must be within business hours (9:00-18:00)
-		if (selectedTime < 900 || selectedTime > 1800) return false;
 
 		// Create date object for selected time today
 		const now = new Date();
@@ -98,18 +106,20 @@
 			<label for="expectedReturn" class="form-label">
 				お引き取り予定時刻<br />Expected Pickup Time
 			</label>
-			<input
+			<select
 				id="expectedReturn"
-				type="time"
 				bind:value={expectedReturn}
-				class="form-input max-w-xs {!isExpectedReturnValid ? 'border-red-500' : ''}"
-				min="09:00"
-				max="18:00"
-			/>
+				class="form-select max-w-xs {!isExpectedReturnValid ? 'border-red-500' : ''}"
+			>
+				<option value="">選択してください / Select Time</option>
+				{#each timeOptions as time}
+					<option value={time}>{time}</option>
+				{/each}
+			</select>
 			{#if expectedReturn && !isExpectedReturnValid}
 				<p class="text-xs text-red-600 mt-1">
-					営業時間内（9:00-18:00）で設定してください<br />
-					Please select within business hours (9:00-18:00)
+					選択された時刻が過去の時間です<br />
+					Selected time is in the past
 				</p>
 			{:else}
 				<p class="text-xs text-gray-500 mt-1">営業時間 Business hours: 9:00-18:00</p>
