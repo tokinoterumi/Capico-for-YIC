@@ -267,7 +267,7 @@
 						/>
 					</svg>
 				</div>
-				<div class="text-sm">
+				<div class="text-base">
 					<h4 class="font-semibold text-orange-700 mb-1">
 						清掃により、ご利用いただけない時間帯がございます<br />Baths unavailable during following
 						scheduled cleaning periods
@@ -381,7 +381,7 @@
 					<path d="M6 7h8v1H6V7zm0 2h8v1H6V9zm0 2h6v1H6v-1z" />
 				</svg>
 			</div>
-			<div class="text-sm">
+			<div class="text-base">
 				<h4 class="font-semibold text-cyan-900 mb-1">
 					任意項目について<br />About Optional Fields Information
 				</h4>
@@ -558,7 +558,7 @@
 					/>
 				</svg>
 			</div>
-			<div class="text-sm">
+			<div class="text-base">
 				<h4 class="font-semibold text-cyan-900 mb-1">重要なお知らせ<br />Important Information</h4>
 				<ul class="text-cyan-800 space-y-1">
 					<li>

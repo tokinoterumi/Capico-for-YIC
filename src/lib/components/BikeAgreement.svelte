@@ -247,7 +247,7 @@
 	<div class="p-2">
 		<label class="flex items-start space-x-3 cursor-pointer">
 			<input type="checkbox" bind:checked={agreement} class="form-checkbox mt-1" required />
-			<div class="text-sm">
+			<div class="text-base">
 				<p class="font-medium text-gray-900">上記規約に同意します</p>
 				<p class="text-gray-600">I agree to the above terms</p>
 			</div>
@@ -266,7 +266,7 @@
 					/>
 				</svg>
 			</div>
-			<div class="text-sm">
+			<div class="text-base">
 				<h4 class="font-semibold text-orange-900 mb-1">
 					安全に関する重要事項<br />Important Safety Information
 				</h4>

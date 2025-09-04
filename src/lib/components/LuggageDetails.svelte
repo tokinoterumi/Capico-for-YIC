@@ -139,7 +139,7 @@
 					/>
 				</svg>
 			</div>
-			<div class="text-sm">
+			<div class="text-base">
 				<h4 class="font-semibold text-cyan-900 mb-1">
 					保管に関する重要事項<br />Important Storage Information
 				</h4>
