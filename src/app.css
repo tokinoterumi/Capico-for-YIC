@@ -212,7 +212,7 @@ body,
 	.btn-secondary,
 	.btn-danger,
 	.btn-success {
-		@apply text-base py-3 px-6;
+		@apply text-lg py-3 px-6;
 	}
 }
 
