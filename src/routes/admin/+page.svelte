@@ -732,26 +732,6 @@
 			</section>
 		{/if}
 
-		<!-- Awaiting Storage Queue -->
-		{#if groupedRentals.awaitingStorage.length > 0}
-			<section class="mb-8">
-				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-					<div class="w-3 h-3 bg-indigo-400 rounded-full mr-3"></div>
-					保管待ち<br />Awaiting Storage ({groupedRentals.awaitingStorage.length})
-				</h2>
-				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{#each groupedRentals.awaitingStorage as rental (rental.rentalID)}
-						<RentalCard
-							{rental}
-							on:moveToActive={(e) => handleMoveToActive(e.detail)}
-							on:edit={(e) => handleEdit(e.detail)}
-							on:viewDetails={(e) => handleViewDetails(e.detail)}
-						/>
-					{/each}
-				</div>
-			</section>
-		{/if}
-
 		<!-- Active Queue -->
 		{#if groupedRentals.active.length > 0}
 			<section class="mb-8">

@@ -193,11 +193,11 @@
 		{#if showAwaitingWidget && !isFloorView}
 			<aside class="admin-sidebar-width border-l border-gray-200 bg-gray-50 overflow-y-auto">
 				<div class="p-4 space-y-6">
-					<!-- Awaiting Storage Widget -->
+					<!-- Awaiting Check-in Widget -->
 					<div>
 						<div class="flex items-center justify-between mb-4">
 							<h2 class="text-lg font-semibold text-gray-900">保管待ち</h2>
-							<span class="text-sm text-gray-500"> Awaiting Storage </span>
+							<span class="text-sm text-gray-500"> Awaiting Check-in </span>
 						</div>
 						<AwaitingStorageWidget
 							bind:this={awaitingStorageWidget}

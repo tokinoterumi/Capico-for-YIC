@@ -117,12 +117,12 @@
 				{/each}
 			</select>
 			{#if expectedReturn && !isExpectedReturnValid}
-				<p class="text-xs text-red-600 mt-1">
+				<p class="text-sm text-red-600 mt-1">
 					選択された時刻が過去の時間です<br />
 					Selected time is in the past
 				</p>
 			{:else}
-				<p class="text-xs text-gray-500 mt-1">営業時間 Business hours: 9:00-18:00</p>
+				<p class="text-sm text-gray-500 mt-1">営業時間 Business hours: 9:00-18:00</p>
 			{/if}
 		</div>
 	</div>

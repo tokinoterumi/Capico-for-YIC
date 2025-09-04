@@ -244,7 +244,7 @@
 					</svg>
 				</div>
 				<p class="text-sm text-gray-500 mb-1">保管待ちなし</p>
-				<p class="text-xs text-gray-400">No items awaiting storage</p>
+				<p class="text-xs text-gray-400">No items awaiting check-in</p>
 			</div>
 		{:else}
 			<!-- Awaiting Items List -->
