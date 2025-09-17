@@ -1,23 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { GoogleAuth } from 'google-auth-library';
-import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
-import { SHEET_COLUMNS } from '$lib/utils/sheet-columns.js';
-
-// --- 憑證處理 ---
-// 這是我們唯一需要在頂部處理的變數，因為它需要解碼和解析
-let CREDENTIALS;
-try {
-	const key_base64 = env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64;
-	if (!key_base64) {
-		throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 not found in .env file.');
-	}
-	const key_json_string = Buffer.from(key_base64, 'base64').toString('utf-8');
-	CREDENTIALS = JSON.parse(key_json_string);
-} catch (error) {
-	console.error('CRITICAL: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_BASE64.', error);
-	CREDENTIALS = {}; // 使用空物件以避免伺服器完全崩潰
-}
+import { SHEET_COLUMNS, getSheetColumnCount, columnLetterToIndex } from '$utils/sheet-columns';
+import { getGoogleSheetsClient } from '$utils/google-sheets-client';
+import { updateSheetsRow } from '$utils/sheets-updater';
+import { handleApiError } from '$utils/api-error-handler';
 
 const SERVICE_TYPES = {
 	BIKE: 'Bike',
@@ -31,15 +17,6 @@ const REGISTRATION_TYPES = {
 	HOTEL: 'hotel' // Hotel partnership registration
 };
 
-async function getGoogleSheetsClient() {
-	const auth = new GoogleAuth({
-		credentials: CREDENTIALS,
-		scopes: ['https://www.googleapis.com/auth/spreadsheets']
-	});
-
-	const authClient = await auth.getClient();
-	return google.sheets({ version: 'v4', auth: authClient });
-}
 
 // Generate service and registration type specific rental ID
 function generateRentalId(
@@ -76,6 +53,101 @@ function generateRentalId(
 	}
 
 	return `${prefix}${timestamp}`;
+}
+
+/**
+ * Populate common fields that are shared across all service types
+ * @param {Array} row - The array representing the spreadsheet row
+ * @param {Object} commonData - Object containing common field values
+ */
+function populateCommonFields(row, commonData) {
+	// Common fields present in all service types
+	row[columnLetterToIndex('A') - 1] = commonData.rentalId; // A: rentalID
+	row[columnLetterToIndex('B') - 1] = commonData.status; // B: status
+	row[columnLetterToIndex('C') - 1] = commonData.currentTime; // C: submittedAt
+	row[columnLetterToIndex('D') - 1] = commonData.currentTime; // D: lastUpdated
+	row[columnLetterToIndex('E') - 1] = commonData.customerName; // E: customerName
+	row[columnLetterToIndex('F') - 1] = commonData.customerContact; // F: customerContact
+	row[columnLetterToIndex('I') - 1] = commonData.serviceType; // I: serviceType
+	row[columnLetterToIndex('K') - 1] = commonData.totalPrice || 0; // K: totalPrice
+	row[columnLetterToIndex('L') - 1] = commonData.expectedReturn; // L: expectedReturn
+	row[columnLetterToIndex('O') - 1] = commonData.checkedInAt; // O: checkedInAt
+}
+
+/**
+ * Populate common workflow/status fields for Bike and Onsen services
+ * @param {Array} row - The array representing the spreadsheet row
+ * @param {Object} workflowData - Object containing workflow field values
+ */
+function populateWorkflowFields(row, workflowData) {
+	// Common workflow fields for Bike and Onsen services
+	row[columnLetterToIndex('P') - 1] = ''; // P: photoFileID
+	row[columnLetterToIndex('Q') - 1] = workflowData.verified; // Q: verified
+	row[columnLetterToIndex('R') - 1] = ''; // R: storedAt
+	row[columnLetterToIndex('S') - 1] = ''; // S: returnedAt
+	row[columnLetterToIndex('T') - 1] = ''; // T: returnStaff
+	row[columnLetterToIndex('U') - 1] = null; // U: goodCondition
+	row[columnLetterToIndex('V') - 1] = ''; // V: returnNotes
+	row[columnLetterToIndex('W') - 1] = false; // W: isLate
+	row[columnLetterToIndex('X') - 1] = 0; // X: minutesLate
+	row[columnLetterToIndex('Y') - 1] = ''; // Y: troubleNotes
+	row[columnLetterToIndex('Z') - 1] = false; // Z: troubleResolved
+	row[columnLetterToIndex('AA') - 1] = false; // AA: damageReported
+	row[columnLetterToIndex('AB') - 1] = false; // AB: repairRequired
+	row[columnLetterToIndex('AC') - 1] = false; // AC: replacementRequired
+	row[columnLetterToIndex('AS') - 1] = workflowData.createdBy; // AS: createdBy
+}
+
+/**
+ * Create common data object for populateCommonFields
+ * @param {Object} params - Parameters for common fields
+ * @returns {Object} Common data object
+ */
+function createCommonFieldsData(params) {
+	return {
+		rentalId: params.rentalId,
+		status: params.status,
+		currentTime: params.currentTime,
+		customerName: params.customerName,
+		customerContact: params.customerContact,
+		serviceType: params.serviceType,
+		totalPrice: params.totalPrice,
+		expectedReturn: params.expectedReturn,
+		checkedInAt: params.checkedInAt
+	};
+}
+
+/**
+ * Populate service-specific count fields to reduce repetitive patterns
+ * @param {Array} row - The array representing the spreadsheet row
+ * @param {Object} data - The request data containing count fields
+ * @param {Object} fieldMapping - Object mapping data fields to column indices
+ */
+function populateCountFields(row, data, fieldMapping) {
+	Object.entries(fieldMapping).forEach(([dataField, columnIndex]) => {
+		row[columnIndex] = data[dataField] || 0;
+	});
+}
+
+/**
+ * Create and populate service-specific row with base structure to eliminate duplication
+ * @param {Object} commonFieldsData - Common field data for all services
+ * @param {Object} workflowData - Workflow data for services that require it
+ * @param {boolean} includeWorkflow - Whether to include workflow fields (Bike/Onsen vs Luggage)
+ * @returns {Array} Initialized row array with common fields populated
+ */
+function createServiceRow(commonFieldsData, workflowData = null, includeWorkflow = false) {
+	const row = new Array(getSheetColumnCount());
+
+	// Populate common fields for all services
+	populateCommonFields(row, commonFieldsData);
+
+	// Populate workflow fields for Bike and Onsen services
+	if (includeWorkflow && workflowData) {
+		populateWorkflowFields(row, workflowData);
+	}
+
+	return row;
 }
 
 // Validate rental data based on service type and registration type
@@ -185,112 +257,86 @@ function prepareRowData(data, rentalId, registrationType) {
 		expectedReturn = expectedDateTime.toISOString();
 	}
 
+	// Create common data object used across all service types
+	const commonFieldsData = createCommonFieldsData({
+		rentalId,
+		status,
+		currentTime,
+		customerName,
+		customerContact,
+		serviceType: data.serviceType,
+		totalPrice: data.totalPrice,
+		expectedReturn,
+		checkedInAt
+	});
+
 	// Create service-specific row data
 	if (data.serviceType === 'Luggage') {
 		// Luggage-only row - minimal essential fields
-		const luggageRow = new Array(47); // A-AU = 47 columns
+		const luggageRow = createServiceRow(commonFieldsData, null, false);
 
-		// Essential luggage fields only
-		luggageRow[0] = rentalId; // A: rentalID
-		luggageRow[1] = status; // B: status
-		luggageRow[2] = currentTime; // C: submittedAt
-		luggageRow[3] = currentTime; // D: lastUpdated
-		luggageRow[4] = customerName; // E: customerName
-		luggageRow[5] = customerContact; // F: customerContact
-		luggageRow[8] = data.serviceType; // I: serviceType
-		luggageRow[10] = data.totalPrice || 0; // K: totalPrice
-		luggageRow[11] = expectedReturn; // L: expectedReturn
-		luggageRow[14] = checkedInAt; // O: checkedInAt
+		// Luggage-specific fields
 		luggageRow[24] = ''; // Y: troubleNotes
-		luggageRow[32] = data.luggageCount || 0; // AG: luggageCount
 		luggageRow[33] = luggageTagNumber; // AH: luggageTagNumber
 		luggageRow[43] = partnerHotel; // AR: partnerHotel
+
+		// Populate luggage count field
+		populateCountFields(luggageRow, data, {
+			luggageCount: 32 // AG: luggageCount
+		});
 
 		// Fill remaining undefined slots with empty strings
 		return luggageRow.map((val) => (val === undefined ? '' : val));
 	} else if (data.serviceType === 'Onsen') {
 		// Onsen-specific row - relevant fields only
-		const onsenRow = new Array(47); // A-AU = 47 columns
+		const onsenRow = createServiceRow(commonFieldsData, {
+			verified,
+			createdBy: data.createdBy || checkInStaff
+		}, true);
 
-		// Essential Onsen fields
-		onsenRow[0] = rentalId; // A: rentalID
-		onsenRow[1] = status; // B: status
-		onsenRow[2] = currentTime; // C: submittedAt
-		onsenRow[3] = currentTime; // D: lastUpdated
-		onsenRow[4] = customerName; // E: customerName
-		onsenRow[5] = customerContact; // F: customerContact
+		// Onsen-specific fields
 		onsenRow[6] = documentType; // G: documentType
 		onsenRow[7] = data.comeFrom || ''; // H: comeFrom
-		onsenRow[8] = data.serviceType; // I: serviceType
-		onsenRow[10] = data.totalPrice || 0; // K: totalPrice
 		onsenRow[12] = agreement; // M: agreement
 		onsenRow[13] = checkInStaff; // N: checkInStaff
-		onsenRow[14] = checkedInAt; // O: checkedInAt
-		onsenRow[15] = ''; // P: photoFileID
-		onsenRow[16] = verified; // Q: verified
-		onsenRow[17] = ''; // R: storedAt
-		onsenRow[18] = ''; // S: returnedAt
-		onsenRow[19] = ''; // T: returnStaff
-		onsenRow[20] = null; // U: goodCondition
-		onsenRow[21] = ''; // V: returnNotes
-		onsenRow[22] = false; // W: isLate
-		onsenRow[23] = 0; // X: minutesLate
-		onsenRow[24] = ''; // Y: troubleNotes
-		onsenRow[25] = false; // Z: troubleResolved
-		onsenRow[26] = false; // AA: damageReported
-		onsenRow[27] = false; // AB: repairRequired
-		onsenRow[28] = false; // AC: replacementRequired
 		onsenRow[31] = ''; // AF: onsenKeyNumber
-		onsenRow[34] = data.adultMaleCount || 0; // AI: maleCount
-		onsenRow[35] = data.adultFemaleCount || 0; // AJ: femaleCount
-		onsenRow[36] = data.totalAdultCount || 0; // AK: totalAdultCount
-		onsenRow[37] = data.childMaleCount || 0; // AL: boyCount
-		onsenRow[38] = data.childFemaleCount || 0; // AM: girlCount
-		onsenRow[39] = data.totalChildCount || 0; // AN: totalChildCount
-		onsenRow[40] = data.kidsCount || 0; // AO: kidsCount
-		onsenRow[41] = data.faceTowelCount || 0; // AP: faceTowelCount
-		onsenRow[42] = data.bathTowelCount || 0; // AQ: bathTowelCount
-		onsenRow[44] = data.createdBy || checkInStaff; // AS: createdBy
+
+		// Populate Onsen demographic count fields
+		populateCountFields(onsenRow, data, {
+			adultMaleCount: 34, // AI: maleCount
+			adultFemaleCount: 35, // AJ: femaleCount
+			totalAdultCount: 36, // AK: totalAdultCount
+			childMaleCount: 37, // AL: boyCount
+			childFemaleCount: 38, // AM: girlCount
+			totalChildCount: 39, // AN: totalChildCount
+			kidsCount: 40, // AO: kidsCount
+			faceTowelCount: 41, // AP: faceTowelCount
+			bathTowelCount: 42 // AQ: bathTowelCount
+		});
+
+		// onsenRow[44] = data.createdBy || checkInStaff; // AS: createdBy - already set by populateWorkflowFields
 		onsenRow[45] = data.ageRange || ''; // AT: ageRange
 
 		// Fill remaining undefined slots with empty strings
 		return onsenRow.map((val) => (val === undefined ? '' : val));
 	} else {
 		// Bike services - full data with bike-specific fields
-		const bikeRow = new Array(47); // A-AU = 47 columns
+		const bikeRow = createServiceRow(commonFieldsData, {
+			verified,
+			createdBy: data.createdBy || checkInStaff
+		}, true);
 
-		// Essential Bike fields
-		bikeRow[0] = rentalId; // A: rentalID
-		bikeRow[1] = status; // B: status
-		bikeRow[2] = currentTime; // C: submittedAt
-		bikeRow[3] = currentTime; // D: lastUpdated
-		bikeRow[4] = customerName; // E: customerName
-		bikeRow[5] = customerContact; // F: customerContact
+		// Bike-specific fields
 		bikeRow[6] = documentType; // G: documentType
-		bikeRow[8] = data.serviceType; // I: serviceType
 		bikeRow[9] = data.rentalPlan || ''; // J: rentalPlan
-		bikeRow[10] = data.totalPrice || 0; // K: totalPrice
-		bikeRow[11] = expectedReturn; // L: expectedReturn
 		bikeRow[12] = agreement; // M: agreement
 		bikeRow[13] = checkInStaff; // N: checkInStaff
-		bikeRow[14] = checkedInAt; // O: checkedInAt
-		bikeRow[15] = ''; // P: photoFileID
-		bikeRow[16] = verified; // Q: verified
-		bikeRow[17] = ''; // R: storedAt
-		bikeRow[18] = ''; // S: returnedAt
-		bikeRow[19] = ''; // T: returnStaff
-		bikeRow[20] = null; // U: goodCondition
-		bikeRow[21] = ''; // V: returnNotes
-		bikeRow[22] = false; // W: isLate
-		bikeRow[23] = 0; // X: minutesLate
-		bikeRow[24] = ''; // Y: troubleNotes
-		bikeRow[25] = false; // Z: troubleResolved
-		bikeRow[26] = false; // AA: damageReported
-		bikeRow[27] = false; // AB: repairRequired
-		bikeRow[28] = false; // AC: replacementRequired
-		bikeRow[29] = data.bikeCount || 0; // AD: bikeCount
 		bikeRow[30] = ''; // AE: bikeNumber
-		bikeRow[44] = data.createdBy || checkInStaff; // AS: createdBy
+
+		// Populate bike count field
+		populateCountFields(bikeRow, data, {
+			bikeCount: 29 // AD: bikeCount
+		});
 
 		// Fill remaining undefined slots with empty strings
 		return bikeRow.map((val) => (val === undefined ? '' : val));
@@ -355,14 +401,7 @@ export async function GET({ url }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('GET Rentals error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'GET Rentals API');
 	}
 }
 
@@ -462,27 +501,7 @@ export async function POST({ request, url }) {
 
 		return json(responseData, { status: 201 });
 	} catch (error) {
-		console.error('POST Rentals error:', error);
-
-		if (error.message.includes('PERMISSION_DENIED')) {
-			return json(
-				{
-					success: false,
-					error: 'Permission denied',
-					message: 'Unable to access Google Sheets. Check credentials.'
-				},
-				{ status: 403 }
-			);
-		}
-
-		return json(
-			{
-				success: false,
-				error: 'Internal server error',
-				message: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'POST Rentals API');
 	}
 }
 
@@ -594,26 +613,8 @@ export async function PUT({ request }) {
 		// Use shared column mapping
 		const columnMap = SHEET_COLUMNS;
 
-		// Apply updates
-		const updateRequests = [];
-		Object.keys(updateData).forEach((field) => {
-			if (columnMap[field] && updateData[field] !== undefined) {
-				updateRequests.push({
-					range: `Rentals!${columnMap[field]}${rowIndex}`,
-					values: [[updateData[field]]]
-				});
-			}
-		});
-
-		if (updateRequests.length > 0) {
-			await sheets.spreadsheets.values.batchUpdate({
-				spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-				resource: {
-					valueInputOption: 'RAW',
-					data: updateRequests
-				}
-			});
-		}
+		// Apply updates using shared utility
+		await updateSheetsRow(sheets, env.GOOGLE_SPREADSHEET_ID, updateData, columnMap, rowIndex);
 
 		return json({
 			success: true,
@@ -624,14 +625,7 @@ export async function PUT({ request }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('PUT Rentals error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'PUT Rentals API');
 	}
 }
 
@@ -744,13 +738,6 @@ export async function DELETE({ url }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('DELETE Rentals error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'DELETE Rentals API');
 	}
 }

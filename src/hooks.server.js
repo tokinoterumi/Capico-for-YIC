@@ -9,7 +9,6 @@ import {
 } from '$env/static/private';
 
 // Import AUTH_TRUST_HOST from dynamic environment for optional availability
-import { env } from '$env/dynamic/private';
 
 export const { handle: authHandle } = SvelteKitAuth({
 	providers: [

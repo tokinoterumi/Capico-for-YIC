@@ -1,32 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { GoogleAuth } from 'google-auth-library';
-import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
-import { getServiceColumnMapping } from '$lib/utils/sheet-columns.js';
-
-// --- 憑證處理 (與 rentals/+server.js 相同) ---
-let CREDENTIALS;
-try {
-	const key_base64 = env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64;
-	if (!key_base64) {
-		throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 not found in .env file.');
-	}
-	const key_json_string = Buffer.from(key_base64, 'base64').toString('utf-8');
-	CREDENTIALS = JSON.parse(key_json_string);
-} catch (error) {
-	console.error('CRITICAL: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_BASE64.', error);
-	CREDENTIALS = {};
-}
-
-// --- Google Sheets 客戶端 (與 rentals/+server.js 相同) ---
-async function getGoogleSheetsClient() {
-	const auth = new GoogleAuth({
-		credentials: CREDENTIALS,
-		scopes: ['https://www.googleapis.com/auth/spreadsheets']
-	});
-	const authClient = await auth.getClient();
-	return google.sheets({ version: 'v4', auth: authClient });
-}
+import { getServiceColumnMapping } from '$utils/sheet-columns';
+import { getGoogleSheetsClient } from '$utils/google-sheets-client';
+import { updateSheetsRow, findRentalRow } from '$utils/sheets-updater';
+import { handleApiError, handleMethodNotAllowed } from '$utils/api-error-handler';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
@@ -47,30 +24,9 @@ export async function POST({ request }) {
 
 		// First, get the current rental to validate return is allowed and determine service type
 		const sheets = await getGoogleSheetsClient();
-		
-		const dataRange = 'Rentals';
-		const response = await sheets.spreadsheets.values.get({
-			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: dataRange
-		});
+		const rentalData = await findRentalRow(sheets, env.GOOGLE_SPREADSHEET_ID, returnData.rentalID);
 
-		const rows = response.data.values || [];
-		let rowIndex = -1;
-		let currentRental = null;
-
-		for (let i = 1; i < rows.length; i++) {
-			if (rows[i][0] === returnData.rentalID) {
-				rowIndex = i + 1;
-				const headers = rows[0];
-				currentRental = {};
-				headers.forEach((header, index) => {
-					currentRental[header] = rows[i][index] || '';
-				});
-				break;
-			}
-		}
-
-		if (rowIndex === -1 || !currentRental) {
+		if (!rentalData) {
 			return json(
 				{
 					error: 'Rental not found',
@@ -80,6 +36,8 @@ export async function POST({ request }) {
 				{ status: 404 }
 			);
 		}
+
+		const { rowIndex, currentRental } = rentalData;
 
 		// Check if rental can be returned
 		if (currentRental.status !== 'Active') {
@@ -206,27 +164,8 @@ export async function POST({ request }) {
 			}
 		}
 
-		// Build batch update requests
-		const updateRequests = [];
-		Object.keys(updates).forEach((field) => {
-			if (columnMap[field] && updates[field] !== undefined) {
-				updateRequests.push({
-					range: `Rentals!${columnMap[field]}${rowIndex}`,
-					values: [[updates[field]]]
-				});
-			}
-		});
-
-		// Execute the update
-		if (updateRequests.length > 0) {
-			await sheets.spreadsheets.values.batchUpdate({
-				spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-				resource: {
-					valueInputOption: 'RAW',
-					data: updateRequests
-				}
-			});
-		}
+		// Execute the update using shared utility
+		await updateSheetsRow(sheets, env.GOOGLE_SPREADSHEET_ID, updates, columnMap, rowIndex);
 
 
 		// Prepare service-specific response messages
@@ -269,38 +208,7 @@ export async function POST({ request }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('Return API Error:', error);
-
-		// Handle different types of errors
-		if (error instanceof SyntaxError) {
-			return json(
-				{
-					error: 'Invalid JSON',
-					message: 'Request body must be valid JSON'
-				},
-				{ status: 400 }
-			);
-		}
-
-		if (error.name === 'TypeError' && error.message.includes('fetch')) {
-			return json(
-				{
-					error: 'Network error',
-					message: 'Failed to connect to Google Apps Script'
-				},
-				{ status: 503 }
-			);
-		}
-
-		// Generic server error
-		return json(
-			{
-				error: 'Internal server error',
-				message: 'An unexpected error occurred during return processing',
-				details: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'Return API');
 	}
 }
 
@@ -343,22 +251,10 @@ export async function GET() {
 
 /** @type {import('./$types').RequestHandler} */
 export async function PUT() {
-	return json(
-		{
-			error: 'Method not allowed',
-			message: 'This endpoint only accepts POST requests'
-		},
-		{ status: 405 }
-	);
+	return handleMethodNotAllowed('POST');
 }
 
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE() {
-	return json(
-		{
-			error: 'Method not allowed',
-			message: 'This endpoint only accepts POST requests'
-		},
-		{ status: 405 }
-	);
+	return handleMethodNotAllowed('POST');
 }

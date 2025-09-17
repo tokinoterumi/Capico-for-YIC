@@ -1,7 +1,7 @@
 /**
  * Google Sheets column mapping for Rentals sheet
  * Single source of truth for all API endpoints
- * Schema: A-AT (46 columns total)
+ * Schema: A-AU (47 columns total)
  */
 
 // Main column mapping (A-AT)
@@ -215,4 +215,36 @@ export function validateColumnMapping(fieldNames) {
 		valid: missing.length === 0,
 		missing
 	};
+}
+
+/**
+ * Get the total number of columns in the sheet (for creating arrays)
+ * Based on the highest column in SHEET_COLUMNS (AU = 47)
+ * @returns {number} Total number of columns
+ */
+export function getSheetColumnCount() {
+	const columnLetters = Object.values(SHEET_COLUMNS);
+	let maxColumn = 0;
+
+	columnLetters.forEach(letter => {
+		const columnIndex = columnLetterToIndex(letter);
+		if (columnIndex > maxColumn) {
+			maxColumn = columnIndex;
+		}
+	});
+
+	return maxColumn;
+}
+
+/**
+ * Convert column letter(s) to zero-based index
+ * @param {string} letter - Column letter (e.g., 'A', 'AU')
+ * @returns {number} Zero-based column index
+ */
+export function columnLetterToIndex(letter) {
+	let result = 0;
+	for (let i = 0; i < letter.length; i++) {
+		result = result * 26 + (letter.charCodeAt(i) - 64);
+	}
+	return result;
 }

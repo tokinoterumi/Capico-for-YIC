@@ -1,31 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { GoogleAuth } from 'google-auth-library';
-import { google } from 'googleapis';
 import { env } from '$env/dynamic/private';
-
-// Credentials handling
-let CREDENTIALS;
-try {
-	const key_base64 = env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64;
-	if (!key_base64) {
-		throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 not found in .env file.');
-	}
-	const key_json_string = Buffer.from(key_base64, 'base64').toString('utf-8');
-	CREDENTIALS = JSON.parse(key_json_string);
-} catch (error) {
-	console.error('CRITICAL: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_BASE64.', error);
-	CREDENTIALS = {};
-}
-
-async function getGoogleSheetsClient() {
-	const auth = new GoogleAuth({
-		credentials: CREDENTIALS,
-		scopes: ['https://www.googleapis.com/auth/spreadsheets']
-	});
-
-	const authClient = await auth.getClient();
-	return google.sheets({ version: 'v4', auth: authClient });
-}
+import { getGoogleSheetsClient } from '$utils/google-sheets-client';
+import { handleApiError } from '$utils/api-error-handler';
 
 function generateStaffId() {
 	return 'STAFF_' + Date.now().toString();
@@ -69,14 +45,7 @@ export async function GET() {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('GET Staff error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'GET Staff API');
 	}
 }
 
@@ -131,15 +100,7 @@ export async function POST({ request }) {
 			timestamp: currentTime
 		}, { status: 201 });
 	} catch (error) {
-		console.error('POST Staff error:', error);
-		return json(
-			{
-				success: false,
-				error: 'Internal server error',
-				message: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'POST Staff API');
 	}
 }
 
@@ -223,14 +184,7 @@ export async function PUT({ request }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('PUT Staff error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'PUT Staff API');
 	}
 }
 
@@ -327,14 +281,7 @@ export async function DELETE({ url }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('DELETE Staff error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'DELETE Staff API');
 	}
 }
 
@@ -405,13 +352,6 @@ export async function PATCH({ request }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('PATCH Staff error:', error);
-		return json(
-			{
-				success: false,
-				error: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'PATCH Staff API');
 	}
 }

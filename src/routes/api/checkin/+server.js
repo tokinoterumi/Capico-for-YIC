@@ -1,32 +1,9 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { GoogleAuth } from 'google-auth-library';
-import { google } from 'googleapis';
-import { getServiceColumnMapping } from '$lib/utils/sheet-columns.js';
-
-// --- Credentials handling ---
-let CREDENTIALS;
-try {
-	const key_base64 = env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64;
-	if (!key_base64) {
-		throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 not found in .env file.');
-	}
-	const key_json_string = Buffer.from(key_base64, 'base64').toString('utf-8');
-	CREDENTIALS = JSON.parse(key_json_string);
-} catch (error) {
-	console.error('CRITICAL: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_BASE64.', error);
-	CREDENTIALS = {}; // Use empty object to avoid server complete crash
-}
-
-async function getGoogleSheetsClient() {
-	const auth = new GoogleAuth({
-		credentials: CREDENTIALS,
-		scopes: ['https://www.googleapis.com/auth/spreadsheets']
-	});
-
-	const authClient = await auth.getClient();
-	return google.sheets({ version: 'v4', auth: authClient });
-}
+import { getServiceColumnMapping } from '$utils/sheet-columns';
+import { getGoogleSheetsClient } from '$utils/google-sheets-client';
+import { updateSheetsRow, findRentalRow } from '$utils/sheets-updater';
+import { handleApiError, handleMethodNotAllowed } from '$utils/api-error-handler';
 
 // Helper function to get rental plan duration in hours
 function getRentalPlanDurationHours(rentalPlan) {
@@ -38,7 +15,7 @@ function getRentalPlanDurationHours(rentalPlan) {
 		case '4hours':
 			return 4;
 		case 'fullday':
-			return 8; // 8 hour full day
+			return 8; // 8-hour full day
 		default:
 			return 4; // Default to 4 hours if unknown plan
 	}
@@ -47,30 +24,8 @@ function getRentalPlanDurationHours(rentalPlan) {
 async function fetchRentalData(rentalID) {
 	try {
 		const sheets = await getGoogleSheetsClient();
-		
-		const response = await sheets.spreadsheets.values.get({
-			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-			range: 'Rentals!A:AP'
-		});
-
-		const rows = response.data.values || [];
-		if (rows.length <= 1) {
-			return null;
-		}
-
-		const headers = rows[0];
-		
-		for (let i = 1; i < rows.length; i++) {
-			if (rows[i][0] === rentalID) {
-				const rental = {};
-				headers.forEach((header, index) => {
-					rental[header] = rows[i][index] || '';
-				});
-				return rental;
-			}
-		}
-		
-		return null;
+		const rentalData = await findRentalRow(sheets, env.GOOGLE_SPREADSHEET_ID, rentalID);
+		return rentalData ? rentalData.currentRental : null;
 	} catch (error) {
 		console.error('Error fetching rental data:', error);
 		throw error;
@@ -337,7 +292,6 @@ export async function POST({ request }) {
 					updates.checkinNotes = checkinData.notes;
 				}
 			} else {
-				// Bike/Onsen updates (full fields including staff and photo)
 				updates.checkInStaff = checkinData.staffName;
 				updates.verified = checkinData.verified ? 'TRUE' : 'FALSE';
 				
@@ -394,25 +348,7 @@ export async function POST({ request }) {
 			}
 
 			// Apply updates to Google Sheets
-			const updateRequests = [];
-			Object.keys(updates).forEach((field) => {
-				if (columnMap[field] && updates[field] !== undefined) {
-					updateRequests.push({
-						range: `Rentals!${columnMap[field]}${rowIndex}`,
-						values: [[updates[field]]]
-					});
-				}
-			});
-
-			if (updateRequests.length > 0) {
-				await sheets.spreadsheets.values.batchUpdate({
-					spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
-					resource: {
-						valueInputOption: 'RAW',
-						data: updateRequests
-					}
-				});
-			}
+			await updateSheetsRow(sheets, env.GOOGLE_SPREADSHEET_ID, updates, columnMap, rowIndex);
 
 			console.log(
 				`Successfully updated rental ${checkinData.rentalID} in Google Sheets - Status: ${resourceData.nextStatus}`
@@ -463,87 +399,22 @@ export async function POST({ request }) {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error('Check-in API Error:', error);
-
-		// Handle different types of errors
-		if (error instanceof SyntaxError) {
-			return json(
-				{
-					error: 'Invalid JSON',
-					message: 'Request body must be valid JSON'
-				},
-				{ status: 400 }
-			);
-		}
-
-		if (error.name === 'TypeError' && error.message.includes('fetch')) {
-			return json(
-				{
-					error: 'Network error',
-					message: 'Failed to connect to Google Apps Script'
-				},
-				{ status: 503 }
-			);
-		}
-
-		// Generic server error
-		return json(
-			{
-				error: 'Internal server error',
-				message: 'An unexpected error occurred during check-in',
-				details: error.message
-			},
-			{ status: 500 }
-		);
+		return handleApiError(error, 'Check-in API');
 	}
 }
 
 // Handle unsupported methods
 /** @type {import('./$types').RequestHandler} */
 export async function GET() {
-	return json(
-		{
-			error: 'Method not allowed',
-			message: 'This endpoint only accepts POST requests',
-			usage: {
-				method: 'POST',
-				requiredFields: ['rentalID', 'staffName', 'photoData', 'photoFileName', 'photoMimeType'],
-				serviceSpecificFields: {
-					Bike: ['bikeNumbers (array)'],
-					Onsen: ['onsenKeyNumbers (array)'],
-					Luggage: ['luggageTagNumbers (array of strings)']
-				},
-				optionalFields: ['notes', 'customerPresent', 'verified'],
-				photoFormats: ['image/jpeg', 'image/png'],
-				statusTransitions: {
-					Bike: 'Pending → Active',
-					Onsen: 'Pending → Active',
-					Luggage: 'Pending → Active'
-				}
-			}
-		},
-		{ status: 405 }
-	);
+	return handleMethodNotAllowed('POST', 'Process rental check-in and resource assignment');
 }
 
 /** @type {import('./$types').RequestHandler} */
 export async function PUT() {
-	return json(
-		{
-			error: 'Method not allowed',
-			message: 'This endpoint only accepts POST requests'
-		},
-		{ status: 405 }
-	);
+	return handleMethodNotAllowed('POST');
 }
 
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE() {
-	return json(
-		{
-			error: 'Method not allowed',
-			message: 'This endpoint only accepts POST requests'
-		},
-		{ status: 405 }
-	);
+	return handleMethodNotAllowed('POST');
 }

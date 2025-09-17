@@ -2,8 +2,6 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import AdminLayout from '$lib/components/AdminLayout.svelte';
-
-	export let data;
 	import RentalCard from '$lib/components/RentalCard.svelte';
 	import QueueFilter from '$lib/components/QueueFilter.svelte';
 	import CheckinModal from '$components/CheckinModal.svelte';
@@ -16,7 +14,10 @@
 	import EditModal from '$lib/components/EditModal.svelte';
 	import ExportDateRangeModal from '$lib/components/ExportDateRangeModal.svelte';
 
+	export let data;
+
 	// === STATE VARIABLES ===
+	/** @type {any[]} */
 	let rentals = [];
 	let adminLayout; // Reference to AdminLayout component
 	let loading = true;
@@ -68,7 +69,7 @@
 			// Set up periodic refresh every 10 seconds for better responsiveness
 			const interval = setInterval(() => {
 				loadRentals(false); // Silent refresh
-			}, 10000); // Reduced from 30s to 10s
+			}, 10000);
 
 			return () => clearInterval(interval);
 		}
@@ -216,11 +217,10 @@
 
 	// === RENTAL ACTION HANDLERS ===
 	function getActiveBikeNumbers() {
-		const activeBikes = rentals
+		return rentals
 			.filter(rental => rental.status === 'Active' && rental.serviceType === 'Bike' && rental.bikeNumber)
 			.flatMap(rental => rental.bikeNumber.split(',').map(num => num.trim()))
 			.filter(num => num !== '');
-		return activeBikes;
 	}
 
 	function getActiveOnsenKeys() {
@@ -265,9 +265,6 @@
 		processResolve(rental);
 	}
 
-	function handleMoveToActive(rental) {
-		processMoveToActive(rental);
-	}
 
 
 	// === QUICK ACTIONS ===
@@ -285,6 +282,7 @@
 		showExportDateRangeModal = true;
 	}
 
+	/** @param {null | {startDate: string, endDate: string}} dateRange */
 	async function exportOnsenData(dateRange = null) {
 		try {
 			let url = '/api/export/onsen';
@@ -333,30 +331,6 @@
 		}
 	}
 
-	async function processMoveToActive(rental) {
-		try {
-			const response = await fetch('/api/move-to-active', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					rentalID: rental.rentalID,
-					storageLocation: 'Area A - Front',
-					notes: '保管完了'
-				})
-			});
-
-			if (response.ok) {
-				await loadRentals();
-				alert('保管が完了しました');
-			} else {
-				const error = await response.json();
-				alert(`エラー: ${error.message}`);
-			}
-		} catch (err) {
-			console.error('Move to active error:', err);
-			alert('保管完了処理中にエラーが発生しました');
-		}
-	}
 
 	async function processResolve(rental) {
 		// Show confirmation dialog
