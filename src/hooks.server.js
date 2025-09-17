@@ -28,10 +28,7 @@ export const { handle: authHandle } = SvelteKitAuth({
 		async signIn({ user, account }) {
 			if (account?.provider === 'google') {
 				const email = user.email;
-				if (email && email.endsWith(`@${ALLOWED_EMAIL_DOMAIN}`)) {
-					return true;
-				}
-				return false;
+				return email && email.endsWith(`@${ALLOWED_EMAIL_DOMAIN}`);
 			}
 			return true;
 		},

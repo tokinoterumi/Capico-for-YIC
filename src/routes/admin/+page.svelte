@@ -689,7 +689,7 @@
 		{#if groupedRentals.pending.length > 0}
 			<section class="mb-8">
 				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-					<div class="w-3 h-3 bg-amber-400 rounded-full mr-3"></div>
+					<span class="w-3 h-3 bg-amber-400 rounded-full mr-3 inline-block"></span>
 					保留中<br />Pending ({groupedRentals.pending.length})
 				</h2>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -710,7 +710,7 @@
 		{#if groupedRentals.active.length > 0}
 			<section class="mb-8">
 				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-					<div class="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
+					<span class="w-3 h-3 bg-green-400 rounded-full mr-3 inline-block"></span>
 					アクティブ<br />Active ({groupedRentals.active.length})
 				</h2>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -731,7 +731,7 @@
 		{#if groupedRentals.troubled.length > 0}
 			<section class="mb-8">
 				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-					<div class="w-3 h-3 bg-red-400 rounded-full mr-3"></div>
+					<span class="w-3 h-3 bg-red-400 rounded-full mr-3 inline-block"></span>
 					トラブル<br />Troubled ({groupedRentals.troubled.length})
 				</h2>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -751,7 +751,7 @@
 		{#if groupedRentals.closed.length > 0}
 			<section class="mb-8">
 				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-					<div class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
+					<span class="w-3 h-3 bg-gray-400 rounded-full mr-3 inline-block"></span>
 					完了<br />Closed ({groupedRentals.closed.length})
 				</h2>
 				<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
