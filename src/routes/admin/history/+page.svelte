@@ -272,7 +272,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 			<!-- Left Side: Date Range and Quick Presets -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-3">日付範囲　Date Range</label>
+				<div class="block text-sm font-medium text-gray-700 mb-3">日付範囲　Date Range</div>
 				<div class="flex flex-wrap items-center gap-4 mb-4">
 					<div class="flex space-x-2">
 						<input
@@ -280,6 +280,7 @@
 							bind:value={filters.startDate}
 							class="form-input"
 							placeholder="Start date"
+							aria-label="Start date"
 						/>
 						<span class="flex items-center text-gray-500 px-2">to</span>
 						<input
@@ -287,6 +288,7 @@
 							bind:value={filters.endDate}
 							class="form-input"
 							placeholder="End date"
+							aria-label="End date"
 						/>
 					</div>
 				</div>
@@ -306,8 +308,8 @@
 			<div class="space-y-4 max-w-sm">
 				<!-- Service Type -->
 				<div class="my-1">
-					<label class="block text-sm font-medium text-gray-700 mb-2">サービス種別　Service Type</label>
-					<select bind:value={filters.serviceType} class="form-input w-64">
+					<label for="serviceTypeSelect" class="block text-sm font-medium text-gray-700 mb-2">サービス種別　Service Type</label>
+					<select id="serviceTypeSelect" bind:value={filters.serviceType} class="form-input w-64">
 						<option value="">すべて</option>
 						<option value="Bike">🚲 レンタサイクル</option>
 						<option value="Onsen">♨️ 外湯めぐり</option>
@@ -317,8 +319,8 @@
 
 				<!-- Staff Name -->
 				<div class="my-1">
-					<label class="block text-sm font-medium text-gray-700 mb-2">担当　Staff</label>
-					<select bind:value={filters.staffName} class="form-input w-64">
+					<label for="staffSelect" class="block text-sm font-medium text-gray-700 mb-2">担当　Staff</label>
+					<select id="staffSelect" bind:value={filters.staffName} class="form-input w-64">
 						<option value="">すべて</option>
 						{#each staffList as staff (staff.name)}
 							<option value={staff.name}>{staff.name}</option>
@@ -384,7 +386,7 @@
 		<div class="flex items-center justify-between mb-4">
 			<div class="flex items-center space-x-4">
 				<h3 class="text-lg font-medium text-gray-900">
-					Results ({filteredCount.toLocaleString()})
+					検索結果 ({filteredCount.toLocaleString()})
 				</h3>
 			</div>
 			<div class="flex items-center space-x-3">
@@ -402,10 +404,10 @@
 					<span>データ出力</span>
 				</button>
 				<div class="flex items-center space-x-2">
-					<label class="text-sm font-medium text-gray-700 whitespace-nowrap">並び替え</label>
-					<select bind:value={filters.sortBy} on:change={handleFilterChange} class="form-input text-sm">
-						<option value="submittedAt">Submitted Time</option>
-						<option value="totalPrice">Price</option>
+					<label for="sortSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">並び替え</label>
+					<select id="sortSelect" bind:value={filters.sortBy} on:change={handleFilterChange} class="form-input text-sm">
+						<option value="submittedAt">時間順</option>
+						<option value="totalPrice">価格順</option>
 					</select>
 				</div>
 				<div class="flex items-center space-x-1">
@@ -413,6 +415,7 @@
 						on:click={() => { filters.sortOrder = 'asc'; handleFilterChange(); }}
 						class="p-1 rounded hover:bg-gray-100 {filters.sortOrder === 'asc' ? 'text-blue-600' : 'text-gray-400'}"
 						title="Sort ascending"
+						aria-label="Sort ascending"
 					>
 						<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 							<path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
@@ -422,6 +425,7 @@
 						on:click={() => { filters.sortOrder = 'desc'; handleFilterChange(); }}
 						class="p-1 rounded hover:bg-gray-100 {filters.sortOrder === 'desc' ? 'text-blue-600' : 'text-gray-400'}"
 						title="Sort descending"
+						aria-label="Sort descending"
 					>
 						<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 							<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
