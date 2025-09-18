@@ -489,7 +489,7 @@
 										on:click={() => handleViewDetails(rental)}
 										class="text-blue-600 hover:text-blue-900 hover:underline"
 									>
-										View Details
+										詳細<br/>View Details
 									</button>
 								</td>
 							</tr>
