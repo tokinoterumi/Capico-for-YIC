@@ -99,7 +99,7 @@
 				</div>
 
 				<!-- Navigation Menu -->
-				<div class="flex items-center space-x-2">
+				<div class="flex items-center space-x-4">
 					{#if isFloorView || isHistoryView}
 						<button
 							on:click={navigateToMainAdmin}
@@ -108,18 +108,18 @@
 							← メイン管理<br />Main Admin
 						</button>
 					{:else}
+						<a
+							href="/admin/history"
+							class="px-3 py-1 text-sm bg-sky-100 text-cyan-800 rounded-md hover:bg-sky-200 transition-colors text-center"
+						>
+							サービス履歴<br />History
+						</a>
 						<button
 							on:click={navigateToFloorView}
 							class="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors"
 						>
 							フロアビュー<br />Floor View
 						</button>
-						<a
-							href="/admin/history"
-							class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
-						>
-							📊 履歴<br />History
-						</a>
 					{/if}
 				</div>
 			</div>

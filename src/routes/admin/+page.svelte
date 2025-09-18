@@ -488,7 +488,7 @@
 	/>
 {/if}
 
-<AdminLayout bind:this={adminLayout} title="管理パネル Admin Panel" session={data.session}>
+<AdminLayout bind:this={adminLayout} title="管理パネル　Admin Panel" session={data.session}>
 	<!-- Stats Overview -->
 	<div class="grid grid-cols-2 gap-4 md:grid-cols-5 lg:grid-cols-5 mb-6">
 		<!-- Pending Card -->

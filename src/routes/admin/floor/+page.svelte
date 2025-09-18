@@ -240,7 +240,7 @@
 	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
 		<!-- Awaiting Storage Column -->
 		<div
-			class="bg-blue-50 rounded-lg border-2 border-blue-200 p-4 flex flex-col"
+			class="bg-blue-50 rounded-lg p-4 flex flex-col"
 			role="region"
 			aria-label="Awaiting Storage column - drop zone for storage items"
 			on:dragover={handleDragOver}
@@ -351,7 +351,7 @@
 
 		<!-- In Progress Column -->
 		<div
-			class="bg-orange-50 rounded-lg border-2 border-orange-200 p-4 flex flex-col"
+			class="bg-orange-50 rounded-lg p-4 flex flex-col"
 			role="region"
 			aria-label="In Progress column - drop zone for items being processed"
 			on:dragover={handleDragOver}
@@ -418,7 +418,7 @@
 
 		<!-- Completed Column -->
 		<div
-			class="bg-green-50 rounded-lg border-2 border-green-200 p-4 flex flex-col"
+			class="bg-green-50 rounded-lg p-4 flex flex-col"
 			role="region"
 			aria-label="Completed column - drop zone for completed items"
 			on:dragover={handleDragOver}
