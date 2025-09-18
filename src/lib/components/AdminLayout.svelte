@@ -30,8 +30,9 @@
 	let awaitingStorageCount = 0;
 	let staffCount = 0;
 
-	// Check if this is the floor staff view
+	// Check if this is the floor staff view or history view
 	$: isFloorView = $page.url.pathname === '/admin/floor';
+	$: isHistoryView = $page.url.pathname === '/admin/history';
 
 	// Get user information from session
 	$: if (session?.user) {
@@ -97,22 +98,30 @@
 					<h1 class="text-xl font-bold text-gray-900">{title}</h1>
 				</div>
 
-				<!-- View Toggle -->
-				{#if !isFloorView}
-					<button
-						on:click={navigateToFloorView}
-						class="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors"
-					>
-						フロアビュー<br />Floor View
-					</button>
-				{:else}
-					<button
-						on:click={navigateToMainAdmin}
-						class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-					>
-						← メイン管理<br />Main Admin
-					</button>
-				{/if}
+				<!-- Navigation Menu -->
+				<div class="flex items-center space-x-2">
+					{#if isFloorView || isHistoryView}
+						<button
+							on:click={navigateToMainAdmin}
+							class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+						>
+							← メイン管理<br />Main Admin
+						</button>
+					{:else}
+						<button
+							on:click={navigateToFloorView}
+							class="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors"
+						>
+							フロアビュー<br />Floor View
+						</button>
+						<a
+							href="/admin/history"
+							class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
+						>
+							📊 履歴<br />History
+						</a>
+					{/if}
+				</div>
 			</div>
 
 			<!-- Status and User Info -->
