@@ -82,16 +82,19 @@
 			// Determine the fiscal year
 			const fiscalYear = currentMonth >= 3 ? currentYear : currentYear - 1; // April (month 3) onwards is current FY
 
-			// Set fiscal year start (April 1) and end (March 31)
-			const fiscalYearStart = new Date(fiscalYear, 3, 2); // April 1
-			const fiscalYearEnd = new Date(fiscalYear + 1, 2, 32); // March 31 of next year
+			// Create dates in UTC to avoid timezone shifts
+			const fiscalYearStart = new Date(Date.UTC(fiscalYear, 3, 1)); // April 1 in UTC
+			const fiscalYearEnd = new Date(Date.UTC(fiscalYear + 1, 2, 31)); // March 31 in UTC
 
 			filters.startDate = fiscalYearStart.toISOString().split('T')[0];
 			filters.endDate = fiscalYearEnd.toISOString().split('T')[0];
 		} else {
-			const startDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
-			filters.endDate = today.toISOString().split('T')[0];
-			filters.startDate = days === 0 ? today.toISOString().split('T')[0] : startDate.toISOString().split('T')[0];
+			// Calculate dates in UTC to avoid timezone shifts
+			const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+			const startDateUTC = new Date(todayUTC.getTime() - days * 24 * 60 * 60 * 1000);
+
+			filters.endDate = todayUTC.toISOString().split('T')[0];
+			filters.startDate = days === 0 ? todayUTC.toISOString().split('T')[0] : startDateUTC.toISOString().split('T')[0];
 		}
 
 		if (browser) {
@@ -464,11 +467,21 @@
 									<div class="flex items-center">
 										<span class="text-lg mr-2">{getServiceIcon(rental.serviceType)}</span>
 										<div>
-											<div class="text-sm font-medium text-gray-900">{rental.serviceType}</div>
+											<div class="text-sm font-medium text-gray-900">
+												{#if rental.serviceType === 'Bike'}
+													レンタサイクル
+												{:else if rental.serviceType === 'Onsen'}
+													外湯めぐり
+												{:else if rental.serviceType === 'Luggage'}
+													荷物預かり
+												{:else}
+													{rental.serviceType}
+												{/if}
+											</div>
 											{#if rental.serviceType === 'Bike' && rental.bikeCount}
-												<div class="text-xs text-gray-500">{rental.bikeCount} bikes</div>
+												<div class="text-xs text-gray-500">{rental.bikeCount} bike{rental.bikeCount > 1 ? 's' : ''}</div>
 											{:else if rental.serviceType === 'Luggage' && rental.luggageCount}
-												<div class="text-xs text-gray-500">{rental.luggageCount} items</div>
+												<div class="text-xs text-gray-500">{rental.luggageCount} piece{rental.luggageCount > 1 ? 's' : ''}</div>
 											{:else if rental.serviceType === 'Onsen' && (rental.totalAdultCount || rental.totalChildCount)}
 												<div class="text-xs text-gray-500">
 													{(Number(rental.totalAdultCount) || 0) + (Number(rental.totalChildCount) || 0) + (Number(rental.kidsCount) || 0)} people
@@ -489,7 +502,7 @@
 										on:click={() => handleViewDetails(rental)}
 										class="text-blue-600 hover:text-blue-900 hover:underline"
 									>
-										詳細<br/>View Details
+										詳細<br/>Details
 									</button>
 								</td>
 							</tr>
