@@ -8,7 +8,7 @@
 	const dispatch = createEventDispatcher();
 
 	// Helper function to get Japanese service type display name
-	function getServiceTypeDisplayName(serviceType: string): string {
+	function getServiceTypeDisplayName(serviceType) {
 		switch (serviceType) {
 			case 'Bike':
 				return 'レンタサイクル';
@@ -277,6 +277,6 @@
 			{/if}
 		{/if}
 		<!-- Always show details button -->
-		<button on:click={handleViewDetails} class="btn-secondary text-sm px-3 py-2">詳細</button>
+		<button on:click={handleViewDetails} class="text-sm text-blue-700 px-3 py-2">詳細</button>
 	</div>
 </div>

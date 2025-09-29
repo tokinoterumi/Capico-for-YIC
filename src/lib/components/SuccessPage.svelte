@@ -80,7 +80,7 @@
 			case 'Onsen':
 				return {
 					title: '湯田中外湯めぐり手形申込完了',
-					subtitle: 'You have successfuly reserved your Yudanaka Onsen Voucher.',
+					subtitle: 'You have successfully reserved your Yudanaka Onsen Voucher.',
 					instructions: [
 						'カウンターにて身分証明書をご提示の上、お支払いを済ませてください。<br/>浴場の鍵をお渡しいたします。',
 						'Please present your ID and complete your payment at the counter to receive your onsen key.'
@@ -214,12 +214,12 @@
 							<h3 class="font-semibold text-gray-900 mb-2">お荷物詳細　Luggage Details</h3>
 							<div class="bg-slate-50 rounded-lg p-4 space-y-2">
 								<div class="flex justify-between">
-									<span class="text-gray-600">個数　Count</span>
+									<span class="text-gray-800">個数　Count</span>
 									<span class="font-medium">{rentalData.luggageCount}</span>
 								</div>
 								{#if rentalData.expectedReturn}
 									<div class="flex justify-between">
-										<span class="text-gray-600">お引き取り予定　Expected Pickup</span>
+										<span class="text-gray-800">お引き取り予定　Expected Pickup</span>
 										<span class="font-medium">{formatExpectedReturn(rentalData.expectedReturn)}</span>
 									</div>
 								{/if}
@@ -232,7 +232,7 @@
 				<div>
 					<h3 class="font-semibold text-gray-900 mb-2">料金　Pricing</h3>
 
-					<div class="bg-slate-50 rounded-lg p-6 text-center">
+					<div class="p-6 text-center">
 						<div class="text-4xl font-bold text-gray-800 mb-2">
 							{formatPrice(rentalData.totalPrice || 0)}
 						</div>
