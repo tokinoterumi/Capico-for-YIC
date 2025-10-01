@@ -1,5 +1,4 @@
-```
-mermaid
+```mermaid
 ---
 config:
   layout: dagre
@@ -56,4 +55,5 @@ flowchart LR
     style System fill:#ffe0b2,stroke:none,stroke-width:2px
     style Backend fill:#f8bbd0,stroke:none,stroke-width:2px
     style Storage fill:#c8e6c9,stroke:none,stroke-width:2px
+
 ```
