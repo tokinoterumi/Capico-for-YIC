@@ -93,7 +93,7 @@
 		<div class="form-group">
 			<label for="luggageCount" class="form-label"> 個数<br />Number of Items * </label>
 			<select id="luggageCount" bind:value={luggageCount} class="form-select max-w-xs" required>
-				{#each Array(10) as _, i}
+				{#each Array(30) as _, i}
 					<option value={i + 1}>
 						{i + 1}
 					</option>
