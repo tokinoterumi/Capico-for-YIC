@@ -451,6 +451,7 @@ export async function POST({ request, url }) {
 			spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
 			range: 'Rentals!A:AU',
 			valueInputOption: 'RAW',
+			insertDataOption: 'INSERT_ROWS',
 			resource: {
 				values: [rowData]
 			}
